@@ -1,3 +1,7 @@
+'use strict';
+
+import {Parser, Renderer, Tokenizer} from "./AST.js";
+
 const inputText = document.querySelector('#input');
 const outputText = document.querySelector('#preview');
 
@@ -18,7 +22,7 @@ const rules = [
     { pattern: /  \n/g, replacement: '<br>' },
     { pattern: /\n\n+/g, replacement: '</p><p>' },
 ];
-
+/*
 function parseMarkdown(text) {
     if (!text.trim()) return '';
 
@@ -38,4 +42,30 @@ function copyText() {
     outputText.innerHTML = parseMarkdown(clean);
 }
 
-inputText.addEventListener('input', copyText);
+ */
+
+function parseMarkdown(text) {
+    if (!text.trim()) return '';
+
+    try {
+        const tokenizer = new Tokenizer(text);
+        const tokens = tokenizer.tokenize();
+
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+
+        const renderer = new Renderer();
+        return renderer.render(ast);
+
+    } catch (error) {
+        console.error('Parsing error:', error);
+        return '<p>Ett fel uppstod vid parsing</p>';
+    }
+}
+
+inputText.addEventListener('input', () => {
+    outputText.innerHTML = parseMarkdown(inputText.value);
+});
+
+// Initial rendering
+outputText.innerHTML = parseMarkdown(inputText.value);
