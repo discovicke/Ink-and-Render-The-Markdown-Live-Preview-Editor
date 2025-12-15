@@ -1,4 +1,4 @@
-html{
+html {
     --black: #1D1E2C;
     --grape: #616394;
     --dark-yellow: #FFBC1F;
@@ -11,7 +11,19 @@ html{
     font-size: 16px;
     letter-spacing: 0.05em;
 }
-body{
+
+@media screen and (prefers-color-scheme: dark) {
+    html {
+        --black: #F9F9F9;
+        --grape: #FFE099;
+        --dark-yellow: #FFD166;
+        --yellow: #FFBC1F;
+        --light-yellow: #616394;
+        --white: #1D1E2C;
+    }
+}
+
+body {
     position: fixed;
     display: flex;
     flex-direction: column;
@@ -20,11 +32,13 @@ body{
     height: 100vh;
     width: 100vw;
     margin: 0;
+    overflow: hidden;
 }
-header{
+
+header {
     position: sticky;
-    background-color: var(--dark-yellow);
-    color: var(--black);
+    background-color: var(--grape);
+    color: var(--light-yellow);
     top: 0;
     width: 100%;
     display: flex;
@@ -33,12 +47,12 @@ header{
     box-sizing: border-box;
 }
 
-header h1{
+header h1 {
     margin: 0;
     font-size: 1.2rem;
 }
 
-main{
+main {
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
@@ -46,17 +60,18 @@ main{
 }
 
 #markdown,
-#preview{
+#preview {
     flex: 1 1 50%;
     height: 100%;
     overflow: auto;
 }
 
 #input,
-#preview{
+#preview {
     /* textarea styling */
 }
-#input{
+
+#input {
     width: 100%;
     height: 100%;
     padding: 1em;
@@ -64,7 +79,8 @@ main{
     font-size: inherit;
     letter-spacing: inherit;
 }
-#input{
+
+#input {
     background: transparent;
     color: inherit;
     border: none;
@@ -72,22 +88,45 @@ main{
     resize: none;
 }
 
-#preview{
+#preview {
     padding: 1em;
-    border-left: 2px solid var(--dark-yellow);
+    border-left: 2px solid var(--grape);
 }
-#preview h1, h2{
+
+#preview h1, h2 {
     margin: 0.7rem 0 0.4rem 0;
     padding-bottom: 9px;
-    border-bottom: 1px solid var(--dark-yellow);
+    border-bottom: 1px solid var(--grape);
 }
-#preview *:first-child{
+
+#preview *:first-child {
     margin-top: 0 !important;
 }
-#preview h6{
+
+#preview h6 {
     color: var(--grape);
 }
-#preview p{
-    line-height:  1.6;
+
+#preview p {
+    line-height: 1.6;
     margin: 1em;
+}
+
+@media screen and (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+
+    #markdown,
+    #preview {
+        flex: 1 1 50%;
+        height: 50%;
+        width: 100%;
+        overflow: auto;
+    }
+
+    #preview {
+        border-top: 2px solid var(--grape);
+        border-left: none;
+    }
 }
