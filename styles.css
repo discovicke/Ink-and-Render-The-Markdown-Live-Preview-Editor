@@ -114,6 +114,14 @@ main {
     margin: 1em;
 }
 
+#preview blockquote {
+    border-left: 4px solid var(--light-yellow);
+    padding-left: 1em;
+    margin-left: 0;
+    color: var(--grape);
+}
+
+
 #input::-webkit-scrollbar,
 #preview::-webkit-scrollbar {
     width: 12px;

@@ -24,16 +24,25 @@ export class Tokenizer {
     }
 
     tokenizeLine(line) {
-        // Tom rad
+        // EMPTY LINE
         if (line.trim() === '') {
             return {type: 'BLANK_LINE'};
         }
+        // HEADING
         const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
             return {
                 type: 'HEADING',
                 level: headingMatch[1].length,
                 content: headingMatch[2]
+            };
+        }
+        // QUOTE
+        const quoteMatch = line.match(/^>\s*(.*)$/);
+        if (quoteMatch) {
+            return {
+                type: 'QUOTE',
+                content: quoteMatch[1]
             };
         }
         return {
@@ -76,6 +85,8 @@ export class Parser {
         switch (token.type) {
             case 'HEADING':
                 return this.parseHeading();
+            case 'QUOTE':
+                return this.parseQuote();
             case 'TEXT':
                 return this.parseParagraph();
             default:
@@ -90,6 +101,26 @@ export class Parser {
             type: 'heading',
             level: token.level,
             children: this.parseInline(token.content)
+        };
+    }
+
+    parseQuote() {
+        const lines = [];
+
+        while (this.pos < this.tokens.length) {
+            const token = this.tokens[this.pos];
+
+            if (token.type !== 'QUOTE') {
+                break;
+            }
+
+            lines.push(token.content);
+            this.pos++;
+        }
+
+        return {
+            type: 'blockquote',
+            children: this.parseInline(lines.join(' '))
         };
     }
 
@@ -114,12 +145,22 @@ export class Parser {
 
         return {
             type: 'paragraph',
-            children: this.parseInline(lines.join(' '))
+            children: this.parseInline(lines.join('\n'))
         };
     }
 
     getInlineRules() {
         return [
+            // NEW LINE
+            {
+                type: 'line_break',
+                pattern: /^  \n/,
+                handler: (match) => ({
+                    type: 'line_break'
+                })
+            },
+
+            // BOLD
             {
                 type: 'bold',
                 pattern: /^\*\*(.+?)\*\*/,
@@ -136,6 +177,7 @@ export class Parser {
                     children: this.parseInline(match[1])
                 })
             },
+            // ITALIC
             {
                 type: 'italic',
                 pattern: /^\*(.+?)\*/,
@@ -151,7 +193,7 @@ export class Parser {
                     type: 'italic',
                     children: this.parseInline(match[1])
                 })
-            }
+            },
         ];
     }
 
@@ -172,7 +214,7 @@ export class Parser {
                 if (match) {
                     // Spara eventuell text före matchen
                     if (current) {
-                        nodes.push({ type: 'text', value: current });
+                        nodes.push({type: 'text', value: current});
                         current = '';
                     }
 
@@ -194,11 +236,12 @@ export class Parser {
 
         // Lägg till kvarvarande text
         if (current) {
-            nodes.push({ type: 'text', value: current });
+            nodes.push({type: 'text', value: current});
         }
 
         return nodes;
-    }}
+    }
+}
 
 export class Renderer {
     render(ast) {
@@ -225,8 +268,14 @@ export class Renderer {
             case 'italic':
                 return `<em>${this.renderChildren(node.children)}</em>`;
 
+            case 'blockquote':
+                return `<blockquote>${this.renderChildren(node.children)}</blockquote>`;
+
             case 'text':
                 return this.escapeHtml(node.value);
+
+            case 'line_break':
+                return '<br>';
 
             default:
                 return '';
