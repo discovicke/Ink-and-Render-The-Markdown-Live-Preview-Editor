@@ -49,6 +49,7 @@ main{
 #preview{
     flex: 1 1 50%;
     height: 100%;
+    /* overflow: auto; */
 }
 
 #input,
