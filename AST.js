@@ -118,70 +118,87 @@ export class Parser {
         };
     }
 
+    getInlineRules() {
+        return [
+            {
+                type: 'bold',
+                pattern: /^\*\*(.+?)\*\*/,
+                handler: (match) => ({
+                    type: 'bold',
+                    children: this.parseInline(match[1])
+                })
+            },
+            {
+                type: 'bold',
+                pattern: /^__(.+?)__/,
+                handler: (match) => ({
+                    type: 'bold',
+                    children: this.parseInline(match[1])
+                })
+            },
+            {
+                type: 'italic',
+                pattern: /^\*(.+?)\*/,
+                handler: (match) => ({
+                    type: 'italic',
+                    children: this.parseInline(match[1])
+                })
+            },
+            {
+                type: 'italic',
+                pattern: /^_(.+?)_/,
+                handler: (match) => ({
+                    type: 'italic',
+                    children: this.parseInline(match[1])
+                })
+            }
+        ];
+    }
+
     parseInline(text) {
         const nodes = [];
+        const rules = this.getInlineRules();
         let current = '';
         let i = 0;
 
         while (i < text.length) {
-            if ((text[i] === '*' && text[i + 1] === '*') ||
-                (text[i] === '_' && text[i + 1] === '_')) {
-                if (current) {
-                    nodes.push({type: 'text', value: current});
-                    current = '';
-                }
+            let matched = false;
+            const remaining = text.substring(i);
 
-                const char = text[i];
-                const boldMatch = text.substring(i).match(
-                    char === '*'
-                        ? /^\*\*(.+?)\*\*/
-                        : /^__(.+?)__/
-                );
+            // Testa alla regler i ordning
+            for (const rule of rules) {
+                const match = remaining.match(rule.pattern);
 
-                if (boldMatch) {
-                    nodes.push({
-                        type: 'bold',
-                        children: this.parseInline(boldMatch[1])
-                    });
-                    i += boldMatch[0].length;
-                    continue;
-                }
-            }
+                if (match) {
+                    // Spara eventuell text före matchen
+                    if (current) {
+                        nodes.push({ type: 'text', value: current });
+                        current = '';
+                    }
 
-            if (text[i] === '*' || text[i] === '_') {
-                if (current) {
-                    nodes.push({type: 'text', value: current});
-                    current = '';
-                }
+                    // Använd regelns handler för att skapa nod
+                    nodes.push(rule.handler(match));
 
-                const char = text[i];
-                const italicMatch = text.substring(i).match(
-                    char === '*'
-                        ? /^\*(.+?)\*/
-                        : /^_(.+?)_/
-                );
-
-                if (italicMatch) {
-                    nodes.push({
-                        type: 'italic',
-                        children: this.parseInline(italicMatch[1])
-                    });
-                    i += italicMatch[0].length;
-                    continue;
+                    i += match[0].length;
+                    matched = true;
+                    break;
                 }
             }
 
-            current += text[i];
-            i++;
+            // Ingen regel matchade, lägg till tecken till current
+            if (!matched) {
+                current += text[i];
+                i++;
+            }
         }
 
+        // Lägg till kvarvarande text
         if (current) {
-            nodes.push({type: 'text', value: current});
+            nodes.push({ type: 'text', value: current });
         }
 
         return nodes;
-    }
-}
+    }}
 
 export class Renderer {
     render(ast) {
