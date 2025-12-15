@@ -15,6 +15,7 @@ const rules = [
     { pattern: /\*(.+?)\*/g, replacement: '<em>$1</em>' },
     { pattern: /_(.+?)_/g, replacement: '<em>$1</em>' },
 
+    { pattern: /  \n/g, replacement: '<br>' },
     { pattern: /\n\n+/g, replacement: '</p><p>' },
 ];
 
