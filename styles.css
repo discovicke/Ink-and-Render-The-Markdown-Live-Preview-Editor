@@ -63,12 +63,14 @@ main {
 #preview {
     flex: 1 1 50%;
     height: 100%;
-    overflow: auto;
+
 }
 
 #input,
 #preview {
-    /* textarea styling */
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--grape) var(--white);
 }
 
 #input {
@@ -110,6 +112,27 @@ main {
 #preview p {
     line-height: 1.6;
     margin: 1em;
+}
+
+#input::-webkit-scrollbar,
+#preview::-webkit-scrollbar {
+    width: 12px;
+}
+
+#input::-webkit-scrollbar-track,
+#preview::-webkit-scrollbar-track {
+    background: var(--white);
+}
+
+#input::-webkit-scrollbar-thumb,
+#preview::-webkit-scrollbar-thumb {
+    background: var(--grape);
+    border-radius: 6px;
+}
+
+#input::-webkit-scrollbar-thumb:hover,
+#preview::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-yellow);
 }
 
 @media screen and (max-width: 768px) {
