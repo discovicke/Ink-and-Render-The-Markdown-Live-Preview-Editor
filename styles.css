@@ -7,7 +7,7 @@ html {
     --white: #FFFCF9;
     background-color: var(--white);
     color: var(--black);
-    font-family: "Menlo", monospace;
+    font-family: Helvetica Neue, sans-serif;
     font-size: 16px;
     letter-spacing: 0.05em;
 }
@@ -80,19 +80,19 @@ main {
     box-sizing: border-box;
     font-size: inherit;
     letter-spacing: inherit;
-}
-
-#input {
     background: transparent;
     color: inherit;
     border: none;
     outline: none;
     resize: none;
+    font-family: "Menlo", serif;
 }
 
 #preview {
     padding: 1em;
     border-left: 2px solid var(--grape);
+    font-family: inherit;
+    letter-spacing: 0;
 }
 
 #preview h1, h2 {
