@@ -58,6 +58,12 @@ main {
     position: relative;
 }
 
+#mirror-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+
 #markdown {
     flex: 1;
     display: flex;
@@ -93,21 +99,59 @@ main {
 }
 
 #input {
-    flex: 1;
+    position: relative;
+    width: 100%;
     border: none;
     outline: none;
-    padding: 1rem;
-    margin: 0;
     resize: none;
     background-color: transparent;
+    color: transparent;
+    caret-color: var(--black);
+    height: auto;
+    min-height: 100%;
+}
+
+#text-highlight {
+    position: absolute;
+    inset: 0;
+    white-space: pre-wrap;
     color: var(--black);
-    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    pointer-events: none;
+}
+
+#text-highlight, #input{
+    box-sizing: border-box;
+    letter-spacing: 0.05em;
+    word-wrap: break-word;
+    padding: 1rem;
+    margin: 0;
     font-size: 1rem;
     line-height: 1.5;
     overflow-y: hidden;
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
     height: auto;
     min-height: 100%;
-    box-sizing: border-box;
+}
+
+.mirrorline-code {
+    color: var(--dark-grape);
+}
+
+.mirrorline-heading {
+    color: var(--dark-grape);
+    font-weight: bold;
+}
+
+.mirrorline-list, .mirrorline-quote, .mirrorline-link, .mirrorline-image {
+    color: var(--dark-grape);
+}
+
+.mirrorline-bold {
+    font-weight: bold;
+}
+
+.mirrorline-italic {
+    font-style: italic;
 }
 
 #markdown,

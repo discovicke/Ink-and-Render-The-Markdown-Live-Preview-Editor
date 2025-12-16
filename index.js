@@ -7,9 +7,50 @@ const outputText = document.querySelector('#preview');
 const markdownSection = document.querySelector('#markdown');
 const previewSection = document.querySelector('#preview');
 const syncCheckbox = document.querySelector('#sync-scroll');
+const mirrorHighlight = document.querySelector('#text-highlight');
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function highlightLine(line) {
+    let html = escapeHtml(line);
+
+    if (/^```/.test(line)) {
+        html = `<span class="mirrorline-code">${html}</span>`;
+    } else if (/^#{1,6}\s/.test(line)) {
+        html = `<span class="mirrorline-heading">${html}</span>`;
+    } else if (/^\s*([-*+]|\d+\.)\s+/.test(line)) {
+        html = `<span class="mirrorline-list">${html}</span>`;
+    } else if (/^>\s*/.test(line)) {
+        html = `<span class="mirrorline-quote">${html}</span>`;
+    }
+
+    html = html.replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        (_m, text, url) =>
+            `<span class="mirrorline-link">[${escapeHtml(text)}](${escapeHtml(url)})</span>`
+    );
+
+    html = html
+        .replace(/\*\*([^*]+)\*\*/g, '<span class="mirrorline-bold">**$1**</span>')
+        .replace(/__([^_]+)__/g, '<span class="mirrorline-bold">__$1__</span>');
+
+    html = html
+        .replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, '$1<span class="mirrorline-italic">*$2*</span>')
+        .replace(/(^|[^_])_([^_]+)_(?!_)/g, '$1<span class="mirrorline-italic">_$2_</span>');
+
+    return `<div class="mirror-line">${html || '&nbsp;'}</div>`;
+
+}
 
 function parseMarkdown(text) {
     if (!text.trim()) return '';
@@ -50,14 +91,18 @@ function syncScroll(from, to, fromFlag, toFlag) {
 
 function updateLineNumbers() {
     const textarea = inputText;
-    const lines = textarea.value.split('\n').length;
+    const linesArray = textarea.value.split('\n');
+    const lineCount = linesArray.length;
+
     const lineNumbers = document.querySelector('#line-numbers');
+
+    mirrorHighlight.innerHTML = linesArray.map(highlightLine).join('');
 
     const cursorPosition = textarea.selectionStart;
     const textBeforeCursor = textarea.value.substring(0, cursorPosition);
     const currentLine = textBeforeCursor.split('\n').length;
 
-    lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => {
+    lineNumbers.innerHTML = Array.from({length: lineCount}, (_, i) => {
         const lineNum = i + 1;
         const isActive = lineNum === currentLine
             ? ' class="active-line"'
