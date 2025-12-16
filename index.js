@@ -4,6 +4,12 @@ import {Parser, Renderer, Tokenizer} from "./AST.js";
 
 const inputText = document.querySelector('#input');
 const outputText = document.querySelector('#preview');
+const markdownSection = document.querySelector('#markdown');
+const previewSection = document.querySelector('#preview');
+const syncCheckbox = document.querySelector('#sync-scroll');
+
+let isSyncingFromMarkdown = false;
+let isSyncingFromPreview = false;
 
 function parseMarkdown(text) {
     if (!text.trim()) return '';
@@ -22,6 +28,24 @@ function parseMarkdown(text) {
         console.error('Parsing error:', error);
         return '<p>Ett fel uppstod vid parsing</p>';
     }
+}
+
+function syncScroll(from, to, fromFlag, toFlag) {
+    if (!syncCheckbox.checked) return;
+    if (fromFlag.value) return;
+
+    fromFlag.value = true;
+
+    const fromScrollHeight = from.scrollHeight - from.clientHeight;
+    const toScrollHeight = to.scrollHeight - to.clientHeight;
+
+    const ratio = fromScrollHeight > 0
+        ? from.scrollTop / fromScrollHeight
+        : 0;
+
+    to.scrollTop = ratio * toScrollHeight;
+
+    fromFlag.value = false;
 }
 
 function updateLineNumbers() {
@@ -63,6 +87,24 @@ inputText.addEventListener('input', () => {
     resizeTextarea();
     outputText.innerHTML = parseMarkdown(inputText.value);
     saveToLocalStorage();
+});
+
+markdownSection.addEventListener('scroll', () => {
+    syncScroll(
+        markdownSection,
+        previewSection,
+        { value: isSyncingFromMarkdown },
+        { value: isSyncingFromPreview }
+    );
+});
+
+previewSection.addEventListener('scroll', () => {
+    syncScroll(
+        previewSection,
+        markdownSection,
+        { value: isSyncingFromPreview },
+        { value: isSyncingFromMarkdown }
+    );
 });
 
 inputText.addEventListener('click', updateLineNumbers);
