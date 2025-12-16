@@ -116,6 +116,8 @@ function updateLineNumbers() {
 function resizeTextarea() {
     inputText.style.height = 'auto';
     inputText.style.height = inputText.scrollHeight + 'px';
+    mirrorHighlight.style.height = inputText.style.height;
+
 }
 
 function loadFromLocalStorage() {

@@ -2,8 +2,8 @@
 :root {
     /* Analog Switch */
     --bg-body: #dcdcd9;
-    --bg-header: rgba(220, 220, 217, 0.85);
-    --bg-editor: #e6e6e3;
+    --bg-header: rgba(220, 220, 217, 0.4);
+    --bg-editor: rgba(220, 220, 217, 0.85);
     --bg-preview: #e6e6e3;
     --border-color: #bfbfbc;
     --scrollbar-thumb: #a6a6a3;
@@ -12,9 +12,11 @@
     --text-secondary: #666663;
     --accent-primary: #3b4b59;
 
-    --syntax-heading: #2b2b2b;
-    --syntax-bold: #bf3a30;
+    --syntax-bold: #2b2b2b;
+    --syntax-heading: #bf3a30;
     --syntax-link: #3b4b59;
+    --syntax-link-hover: #dbead5;
+    --syntax-link-visited: #5a6e6b;
     --syntax-code: #c9a66d;
     --syntax-quote: #7d858a;
 }
@@ -29,8 +31,8 @@ html {
 
 [data-theme="nordic"] {
     --bg-body: #161a1d;
-    --bg-header: rgba(22, 26, 29, 0.85);
-    --bg-editor: #1c2423;
+    --bg-header: rgba(22, 26, 29, 0.4);
+    --bg-editor: rgba(22, 26, 29, 0.85);
     --bg-preview: #1c2423;
     --border-color: #2f3b39;
     --scrollbar-thumb: #4a5c58;
@@ -39,8 +41,8 @@ html {
     --text-secondary: #8c9694;
     --accent-primary: #cd4b4b;
 
-    --syntax-heading: #e8e0d5;
-    --syntax-bold: #cd4b4b;
+    --syntax-bold: #e8e0d5;
+    --syntax-heading: #cd4b4b;
     --syntax-link: #8fb588;
     --syntax-code: #d1c0a5;
     --syntax-quote: #6e7a78;
@@ -48,8 +50,8 @@ html {
 
 [data-theme="retro terminal"] {
     --bg-body: #2b2826;
-    --bg-header: rgba(43, 40, 38, 0.95);
-    --bg-editor: #363230;
+    --bg-header: rgba(43, 40, 38, 0.4);
+    --bg-editor: rgba(43, 40, 38, 0.85);
     --bg-preview: #363230;
     --border-color: #4a4542;
     --scrollbar-thumb: #5e5853;
@@ -58,17 +60,19 @@ html {
     --text-secondary: #8c8680;
     --accent-primary: #d4a86a;
 
-    --syntax-heading: #d4a86a;
-    --syntax-bold: #c9756b;
+    --syntax-bold: #d4a86a;
+    --syntax-heading: #c9756b;
     --syntax-link: #8fa893;
+    --syntax-link-hover: #d4a86a;
+    --syntax-link-visited: #5c5550;
     --syntax-code: #b8a995;
     --syntax-quote: #756f6a;
 }
 
 [data-theme="hazy orange"] {
     --bg-body: #f0f0f0;
-    --bg-header: rgba(240, 240, 240, 0.85);
-    --bg-editor: #f7f7f7;
+    --bg-header: rgba(240, 240, 240, 0.4);
+    --bg-editor: rgba(240, 240, 240, 0.85);
     --bg-preview: #f7f7f7;
     --border-color: #e0e0e0;
     --scrollbar-thumb: #cccccc;
@@ -77,17 +81,19 @@ html {
     --text-secondary: #757575;
     --accent-primary: #ff7e47;
 
-    --syntax-heading: #1a1a1a;
-    --syntax-bold: #ff7e47;
+    --syntax-bold: #1a1a1a;
+    --syntax-heading: #ff7e47;
     --syntax-link: #333333;
+    --syntax-link-hover: #ff7e47;
+    --syntax-link-visited: #9e9e9e;
     --syntax-code: #5c8a68;
     --syntax-quote: #999999;
 }
 
 [data-theme="maroon"] {
     --bg-body: #1f1516;
-    --bg-header: rgba(31, 21, 22, 0.85);
-    --bg-editor: #291c1d;
+    --bg-header: rgba(31, 21, 22, 0.4);
+    --bg-editor: rgba(31, 21, 22, 0.85);
     --bg-preview: #291c1d;
     --border-color: #452f31;
     --scrollbar-thumb: #5e4043;
@@ -96,17 +102,19 @@ html {
     --text-secondary: #a88b8d;
     --accent-primary: #e09f87;
 
-    --syntax-heading: #ffcec4;
-    --syntax-bold: #e09f87;
+    --syntax-bold: #ffcec4;
+    --syntax-heading: #e09f87;
     --syntax-link: #e3d2b3;
+    --syntax-link-hover: #ffcec4;
+    --syntax-link-visited: #8f7678;
     --syntax-code: #d6b8ba;
     --syntax-quote: #7a5c5f;
 }
 
 [data-theme="fintech"] {
     --bg-body: #050505;
-    --bg-header: rgba(5, 5, 5, 0.85);
-    --bg-editor: #000000;
+    --bg-header: rgba(5, 5, 5, 0.4);
+    --bg-editor: rgba(5, 5, 5, 0.85);
     --bg-preview: #000000;
     --border-color: #1f1f1f;
     --scrollbar-thumb: #333333;
@@ -115,9 +123,11 @@ html {
     --text-secondary: #888888;
     --accent-primary: #d4f02e;
 
-    --syntax-heading: #bfa2f7;
-    --syntax-bold: #d4f02e;
+    --syntax-bold: #bfa2f7;
+    --syntax-heading: #d4f02e;
     --syntax-link: #bfa2f7;
+    --syntax-link-hover: #d4f02e;
+    --syntax-link-visited: #5d4a82;
     --syntax-code: #ffffff;
     --syntax-quote: #4d4d4d;
 }
@@ -133,6 +143,7 @@ body {
 header {
     position: sticky;
     background-color: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     top: 0;
     width: 100%;
@@ -214,6 +225,8 @@ main {
     white-space: pre-wrap;
     color: var(--text-primary);
     pointer-events: none;
+    min-height: 100%;
+    height: auto;
 }
 
 #text-highlight, #input {
@@ -309,8 +322,8 @@ main {
 }
 
 #preview code {
-    background-color: var(--syntax-code);
-    color: var(--text-secondary);
+    background-color: var(--bg-editor);
+    color: var(--syntax-code);
     border-radius: 8px;
     padding: 0.3em 0.3em;
     overflow-x: auto;
@@ -319,8 +332,8 @@ main {
 }
 
 #preview pre {
-    background-color: var(--syntax-code);
-    color: var(--text-secondary);
+    background-color: var(--bg-editor);
+    color: var(--syntax-bold);
     padding: 0.75em 1em;
     border-radius: 8px;
     overflow-x: auto;
@@ -353,12 +366,12 @@ main {
 
 #preview a:hover,
 #preview a:focus-visible {
-    color: var(--accent-primary);
+    color: var(--syntax-link-hover);
     outline: none;
 }
 
 #preview a:visited {
-    color: var(--grape);
+    color: var(--syntax-link-visited);
 }
 
 #markdown::-webkit-scrollbar,
