@@ -1,4 +1,8 @@
-'use strict'
+/*
+    ============================================
+    TOKENIZER - Steg 1: Dela upp i tokens
+    ============================================
+*/
 
 export class Tokenizer {
     constructor(text) {
@@ -18,17 +22,20 @@ export class Tokenizer {
             if (token) {
                 tokens.push(token);
             }
+
             this.currentLine++;
         }
+
         return tokens;
     }
 
     tokenizeLine(line) {
-        // EMPTY LINE
+        // Tom rad
         if (line.trim() === '') {
-            return {type: 'BLANK_LINE'};
+            return { type: 'BLANK_LINE' };
         }
-        // HEADING
+
+        // Rubriker
         const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
             return {
@@ -37,7 +44,8 @@ export class Tokenizer {
                 content: headingMatch[2]
             };
         }
-        // LISTA (PUNKTLISTA)
+
+        // Lista (punktlista)
         const listMatch = line.match(/^(\s*)[-*+]\s+(.+)$/);
         if (listMatch) {
             return {
@@ -47,7 +55,8 @@ export class Tokenizer {
                 ordered: false
             };
         }
-        // LISTA (NUMRERAD)
+
+        // Lista (numrerad)
         const orderedMatch = line.match(/^(\s*)(\d+)\.\s+(.+)$/);
         if (orderedMatch) {
             return {
@@ -57,7 +66,13 @@ export class Tokenizer {
                 ordered: true
             };
         }
-        // QUOTE
+
+        // Kodblock
+        if (line.trim().startsWith('```')) {
+            return this.tokenizeCodeBlock();
+        }
+
+        // Citat
         const quoteMatch = line.match(/^>\s*(.*)$/);
         if (quoteMatch) {
             return {
@@ -65,13 +80,48 @@ export class Tokenizer {
                 content: quoteMatch[1]
             };
         }
+
+        // Vanlig text
         return {
             type: 'TEXT',
             content: line
         };
     }
-}
 
+    tokenizeCodeBlock() {
+        const startLine = this.currentLine;
+        const lang = this.lines[startLine].trim().substring(3);
+        const content = [];
+
+        this.currentLine++;
+
+        while (this.currentLine < this.lines.length) {
+            const line = this.lines[this.currentLine];
+
+            if (line.trim().startsWith('```')) {
+                return {
+                    type: 'CODE_BLOCK',
+                    language: lang,
+                    content: content.join('\n')
+                };
+            }
+
+            content.push(line);
+            this.currentLine++;
+        }
+
+        return {
+            type: 'CODE_BLOCK',
+            language: lang,
+            content: content.join('\n')
+        };
+    }
+}
+/*
+    ============================================
+    PARSER - Steg 2: Bygg AST
+    ============================================
+*/
 export class Parser {
     constructor(tokens) {
         this.tokens = tokens;
@@ -107,6 +157,8 @@ export class Parser {
                 return this.parseHeading();
             case 'LIST_ITEM':
                 return this.parseList();
+            case 'CODE_BLOCK':
+                return this.parseCodeBlock();
             case 'QUOTE':
                 return this.parseQuote();
             case 'TEXT':
@@ -125,6 +177,7 @@ export class Parser {
             children: this.parseInline(token.content)
         };
     }
+
     parseList() {
         const items = [];
         const isOrdered = this.tokens[this.pos].ordered;
@@ -149,6 +202,16 @@ export class Parser {
             children: items
         };
     }
+
+    parseCodeBlock() {
+        const token = this.tokens[this.pos++];
+        return {
+            type: 'code_block',
+            language: token.language,
+            content: token.content
+        };
+    }
+
     parseQuote() {
         const lines = [];
 
@@ -188,15 +251,16 @@ export class Parser {
             }
         }
 
+        // Använd \n för att bevara radbrytningar inom paragrafen
         return {
             type: 'paragraph',
             children: this.parseInline(lines.join('\n'))
         };
     }
 
+    // Regel-tabell för inline-formatering
     getInlineRules() {
         return [
-            // NEW LINE
             {
                 type: 'line_break',
                 pattern: /^  \n/,
@@ -204,8 +268,6 @@ export class Parser {
                     type: 'line_break'
                 })
             },
-
-            // IMAGE
             {
                 type: 'image',
                 pattern: /^!\[([^\]]*)\]\(([^)]+)\)/,
@@ -215,8 +277,6 @@ export class Parser {
                     url: match[2]
                 })
             },
-
-            // LINK
             {
                 type: 'link',
                 pattern: /^\[([^\]]+)\]\(([^)]+)\)/,
@@ -226,8 +286,14 @@ export class Parser {
                     url: match[2]
                 })
             },
-
-            // BOLD
+            {
+                type: 'code',
+                pattern: /^`([^`]+)`/,
+                handler: (match) => ({
+                    type: 'code',
+                    value: match[1]
+                })
+            },
             {
                 type: 'bold',
                 pattern: /^\*\*(.+?)\*\*/,
@@ -244,7 +310,6 @@ export class Parser {
                     children: this.parseInline(match[1])
                 })
             },
-            // ITALIC
             {
                 type: 'italic',
                 pattern: /^\*(.+?)\*/,
@@ -260,7 +325,7 @@ export class Parser {
                     type: 'italic',
                     children: this.parseInline(match[1])
                 })
-            },
+            }
         ];
     }
 
@@ -281,7 +346,7 @@ export class Parser {
                 if (match) {
                     // Spara eventuell text före matchen
                     if (current) {
-                        nodes.push({type: 'text', value: current});
+                        nodes.push({ type: 'text', value: current });
                         current = '';
                     }
 
@@ -303,12 +368,18 @@ export class Parser {
 
         // Lägg till kvarvarande text
         if (current) {
-            nodes.push({type: 'text', value: current});
+            nodes.push({ type: 'text', value: current });
         }
 
         return nodes;
     }
 }
+
+/*
+    ============================================
+    RENDERER - Steg 3: Generera HTML från AST
+    ============================================
+*/
 
 export class Renderer {
     render(ast) {
@@ -329,6 +400,24 @@ export class Renderer {
             case 'paragraph':
                 return `<p>${this.renderChildren(node.children)}</p>`;
 
+            case 'bold':
+                return `<strong>${this.renderChildren(node.children)}</strong>`;
+
+            case 'italic':
+                return `<em>${this.renderChildren(node.children)}</em>`;
+
+            case 'code':
+                return `<code>${this.escapeHtml(node.value)}</code>`;
+
+            case 'code_block':
+                return `<pre><code>${this.escapeHtml(node.content)}</code></pre>`;
+
+            case 'link':
+                return `<a href="${this.escapeHtml(node.url)}">${this.escapeHtml(node.text)}</a>`;
+
+            case 'image':
+                return `<img src="${this.escapeHtml(node.url)}" alt="${this.escapeHtml(node.alt)}">`;
+
             case 'unordered_list':
                 return `<ul>${this.renderChildren(node.children)}</ul>`;
 
@@ -338,26 +427,14 @@ export class Renderer {
             case 'list_item':
                 return `<li>${this.renderChildren(node.children)}</li>`;
 
-            case 'bold':
-                return `<strong>${this.renderChildren(node.children)}</strong>`;
-
-            case 'italic':
-                return `<em>${this.renderChildren(node.children)}</em>`;
-
-            case 'link':
-                return `<a href="${this.escapeHtml(node.url)}">${this.escapeHtml(node.text)}</a>`;
-
-            case 'image':
-                return `<img src="${this.escapeHtml(node.url)}" alt="${this.escapeHtml(node.alt)}">`;
-
             case 'blockquote':
                 return `<blockquote>${this.renderChildren(node.children)}</blockquote>`;
 
-            case 'text':
-                return this.escapeHtml(node.value);
-
             case 'line_break':
                 return '<br>';
+
+            case 'text':
+                return this.escapeHtml(node.value);
 
             default:
                 return '';
