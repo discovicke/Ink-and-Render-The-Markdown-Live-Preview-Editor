@@ -65,8 +65,8 @@ main {
     background-color: var(--white);
     overflow-y: auto;
     position: relative;
-    scrollbar-width: thin;
-    scrollbar-color: var(--grape) var(--white);
+    scrollbar-width: auto;
+    scrollbar-color: var(--dark-yellow) var(--white);
 }
 
 #line-numbers {
@@ -122,8 +122,8 @@ main {
     font-family: inherit;
     letter-spacing: 0;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--grape) var(--white);
+    scrollbar-width: auto;
+    scrollbar-color: var(--dark-yellow) var(--white);
 }
 
 #preview h1, h2 {
@@ -225,7 +225,7 @@ main {
 
 #markdown::-webkit-scrollbar-thumb,
 #preview::-webkit-scrollbar-thumb {
-    background: var(--grape);
+    background: var(--dark-yellow);
     border-radius: 6px;
 }
 
