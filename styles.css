@@ -121,6 +121,31 @@ main {
     color: var(--grape);
 }
 
+#preview img {
+    max-width: 85%;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0.5em 0;
+    box-sizing: border-box;
+}
+
+#preview a {
+    color: var(--grape);
+    text-decoration: underline;
+    text-decoration-color: var(--dark-yellow);
+    text-underline-offset: 0.12em;
+}
+
+#preview a:hover,
+#preview a:focus-visible {
+    color: var(--dark-yellow);
+    outline: none;
+}
+
+#preview a:visited {
+    color: var(--grape);
+}
 
 #input::-webkit-scrollbar,
 #preview::-webkit-scrollbar {

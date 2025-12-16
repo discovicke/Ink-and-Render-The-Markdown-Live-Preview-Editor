@@ -41,8 +41,7 @@ function copyText() {
     const clean = dirty.replaceAll(unsafeRegex, '');
     outputText.innerHTML = parseMarkdown(clean);
 }
-
- */
+*/
 
 function parseMarkdown(text) {
     if (!text.trim()) return '';
