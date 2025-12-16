@@ -37,6 +37,26 @@ export class Tokenizer {
                 content: headingMatch[2]
             };
         }
+        // LISTA (PUNKTLISTA)
+        const listMatch = line.match(/^(\s*)[-*+]\s+(.+)$/);
+        if (listMatch) {
+            return {
+                type: 'LIST_ITEM',
+                indent: listMatch[1].length,
+                content: listMatch[2],
+                ordered: false
+            };
+        }
+        // LISTA (NUMRERAD)
+        const orderedMatch = line.match(/^(\s*)(\d+)\.\s+(.+)$/);
+        if (orderedMatch) {
+            return {
+                type: 'LIST_ITEM',
+                indent: orderedMatch[1].length,
+                content: orderedMatch[3],
+                ordered: true
+            };
+        }
         // QUOTE
         const quoteMatch = line.match(/^>\s*(.*)$/);
         if (quoteMatch) {
@@ -85,6 +105,8 @@ export class Parser {
         switch (token.type) {
             case 'HEADING':
                 return this.parseHeading();
+            case 'LIST_ITEM':
+                return this.parseList();
             case 'QUOTE':
                 return this.parseQuote();
             case 'TEXT':
@@ -103,7 +125,30 @@ export class Parser {
             children: this.parseInline(token.content)
         };
     }
+    parseList() {
+        const items = [];
+        const isOrdered = this.tokens[this.pos].ordered;
 
+        while (this.pos < this.tokens.length) {
+            const token = this.tokens[this.pos];
+
+            if (token.type !== 'LIST_ITEM') {
+                break;
+            }
+
+            items.push({
+                type: 'list_item',
+                children: this.parseInline(token.content)
+            });
+
+            this.pos++;
+        }
+
+        return {
+            type: isOrdered ? 'ordered_list' : 'unordered_list',
+            children: items
+        };
+    }
     parseQuote() {
         const lines = [];
 
@@ -261,6 +306,15 @@ export class Renderer {
 
             case 'paragraph':
                 return `<p>${this.renderChildren(node.children)}</p>`;
+
+            case 'unordered_list':
+                return `<ul>${this.renderChildren(node.children)}</ul>`;
+
+            case 'ordered_list':
+                return `<ol>${this.renderChildren(node.children)}</ol>`;
+
+            case 'list_item':
+                return `<li>${this.renderChildren(node.children)}</li>`;
 
             case 'bold':
                 return `<strong>${this.renderChildren(node.children)}</strong>`;
