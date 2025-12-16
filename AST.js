@@ -324,20 +324,23 @@ export class Parser {
 
         while (this.pos < this.tokens.length) {
             const token = this.tokens[this.pos];
-
-            if (token.type !== 'QUOTE') {
-                break;
-            }
-
+            if (token.type !== 'QUOTE') break;
             lines.push(token.content);
             this.pos++;
         }
 
+        const innerText = lines.join('\n');
+        const innerTokenizer = new Tokenizer(innerText);
+        const innerTokens = innerTokenizer.tokenize();
+        const innerParser = new Parser(innerTokens);
+        const innerAst = innerParser.parse();
+
         return {
             type: 'blockquote',
-            children: this.parseInline(lines.join(' '))
+            children: innerAst.children
         };
     }
+
 
     parseParagraph() {
         const lines = [];
