@@ -47,16 +47,29 @@ function resizeTextarea() {
     inputText.style.height = inputText.scrollHeight + 'px';
 }
 
+function loadFromLocalStorage() {
+    const savedText = localStorage.getItem('markdownText');
+    if (savedText !== null) {
+        inputText.value = savedText;
+    }
+}
+
+function saveToLocalStorage() {
+    localStorage.setItem('markdownText', inputText.value);
+}
+
 inputText.addEventListener('input', () => {
     updateLineNumbers();
     resizeTextarea();
     outputText.innerHTML = parseMarkdown(inputText.value);
+    saveToLocalStorage();
 });
 
 inputText.addEventListener('click', updateLineNumbers);
 inputText.addEventListener('keyup', updateLineNumbers);
 
 // Initial rendering
+loadFromLocalStorage();
 resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);

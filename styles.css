@@ -75,14 +75,12 @@ main {
     text-align: right;
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 1rem;
-    line-height: 1.5;
     user-select: none;
     border-right: 1px solid rgba(97, 99, 148, 0.2);
 }
 
 #line-numbers div {
     transition: color 0.3s ease;
-    height: 1.5rem;
 }
 
 #line-numbers div.active-line {
