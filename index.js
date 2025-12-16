@@ -41,8 +41,15 @@ function updateLineNumbers() {
         return `<div${isActive}>${lineNum}</div>`;
     }).join('');
 }
+
+function resizeTextarea() {
+    inputText.style.height = 'auto';
+    inputText.style.height = inputText.scrollHeight + 'px';
+}
+
 inputText.addEventListener('input', () => {
     updateLineNumbers();
+    resizeTextarea();
     outputText.innerHTML = parseMarkdown(inputText.value);
 });
 
@@ -50,5 +57,6 @@ inputText.addEventListener('click', updateLineNumbers);
 inputText.addEventListener('keyup', updateLineNumbers);
 
 // Initial rendering
+resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
