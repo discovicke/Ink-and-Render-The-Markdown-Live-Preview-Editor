@@ -179,29 +179,75 @@ export class Parser {
     }
 
     parseList() {
-        const items = [];
-        const isOrdered = this.tokens[this.pos].ordered;
+        const startToken = this.tokens[this.pos];
+        const rootIndent = startToken.indent;
+        const isOrderedRoot = startToken.ordered;
+
+        const stack = [{
+            type: isOrderedRoot
+                ? 'ordered_list'
+                : 'unordered_list',
+            indent: rootIndent,
+            children: []
+        }];
 
         while (this.pos < this.tokens.length) {
             const token = this.tokens[this.pos];
 
-            if (token.type !== 'LIST_ITEM') {
+            if (token.type !== 'LIST_ITEM') break;
+
+            const { indent, ordered, content } = token;
+
+            // if went "up" in indentation -> pop back up in stack
+            while (stack.length > 0 && indent < stack[stack.length - 1].indent) {
+                stack.pop();
+            }
+
+            // if deeper than current indentation -> create list child
+            if (indent > stack[stack.length - 1].indent) {
+                const newList = {
+                    type: ordered ? 'ordered_list' : 'unordered_list',
+                    indent,
+                    children: []
+                };
+                const lastItem = stack[stack.length - 1].children[stack[stack.length - 1].children.length - 1];
+                if (!lastItem) break;
+                if (!lastItem.children) lastItem.children = [];
+                lastItem.children.push(newList);
+                stack.push(newList);
+            }
+
+            // Switch between ordered/unordered on same level -> close
+            if (
+                indent === stack[stack.length - 1].indent &&
+                ((ordered && stack[stack.length - 1].type === 'unordered_list') ||
+                    (!ordered && stack[stack.length - 1].type === 'ordered_list'))
+            ) {
                 break;
             }
 
-            items.push({
+            const currentList = stack[stack.length - 1];
+            currentList.children.push({
                 type: 'list_item',
-                children: this.parseInline(token.content)
+                children: this.parseInline(content)
             });
 
             this.pos++;
         }
 
-        return {
-            type: isOrdered ? 'ordered_list' : 'unordered_list',
-            children: items
+        const rootList = stack[0];
+        delete rootList.indent;
+        // rensa hjälpfält
+        const clean = (node) => {
+            if (!node || !node.children) return;
+            node.children.forEach(child => clean(child));
+            delete node.indent;
         };
+        clean(rootList);
+
+        return rootList;
     }
+
 
     parseCodeBlock() {
         const token = this.tokens[this.pos++];

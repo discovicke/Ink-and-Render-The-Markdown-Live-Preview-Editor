@@ -177,7 +177,7 @@ previewSection.addEventListener('scroll', () => {
 });
 
 // JS
-inputText.tabIndex = 0; // ensure focusable
+inputText.tabIndex = 0;
 
 inputText.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
