@@ -205,6 +205,28 @@ export class Parser {
                 })
             },
 
+            // IMAGE
+            {
+                type: 'image',
+                pattern: /^!\[([^\]]*)\]\(([^)]+)\)/,
+                handler: (match) => ({
+                    type: 'image',
+                    alt: match[1],
+                    url: match[2]
+                })
+            },
+
+            // LINK
+            {
+                type: 'link',
+                pattern: /^\[([^\]]+)\]\(([^)]+)\)/,
+                handler: (match) => ({
+                    type: 'link',
+                    text: match[1],
+                    url: match[2]
+                })
+            },
+
             // BOLD
             {
                 type: 'bold',
@@ -321,6 +343,12 @@ export class Renderer {
 
             case 'italic':
                 return `<em>${this.renderChildren(node.children)}</em>`;
+
+            case 'link':
+                return `<a href="${this.escapeHtml(node.url)}">${this.escapeHtml(node.text)}</a>`;
+
+            case 'image':
+                return `<img src="${this.escapeHtml(node.url)}" alt="${this.escapeHtml(node.alt)}">`;
 
             case 'blockquote':
                 return `<blockquote>${this.renderChildren(node.children)}</blockquote>`;
