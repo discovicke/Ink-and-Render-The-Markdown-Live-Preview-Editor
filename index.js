@@ -176,6 +176,33 @@ previewSection.addEventListener('scroll', () => {
     );
 });
 
+// JS
+inputText.tabIndex = 0; // ensure focusable
+
+inputText.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const start = inputText.selectionStart;
+        const end = inputText.selectionEnd;
+        const value = inputText.value;
+        const insert = '    ';
+
+        inputText.value = value.slice(0, start) + insert + value.slice(end);
+
+        const newPos = start + insert.length;
+        inputText.selectionStart = newPos;
+        inputText.selectionEnd = newPos;
+
+        updateLineNumbers();
+        resizeTextarea();
+        outputText.innerHTML = parseMarkdown(inputText.value);
+        saveToLocalStorage();
+    }
+});
+
+
 inputText.addEventListener('click', updateLineNumbers);
 inputText.addEventListener('keyup', updateLineNumbers);
 
