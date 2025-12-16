@@ -35,6 +35,11 @@ export class Tokenizer {
             return { type: 'BLANK_LINE' };
         }
 
+        // Tabellrad (börjar med "|")
+        if (/^\s*\|.*\|\s*$/.test(line)) {
+            return this.tokenizeTable(line);
+        }
+
         // Rubriker
         const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
@@ -116,6 +121,49 @@ export class Tokenizer {
             content: content.join('\n')
         };
     }
+
+tokenizeTable(firstLine) {
+    // Read head, separator & all table rows
+    const headerLine = firstLine;
+    const headerCells = headerLine
+        .trim()
+        .slice(1, -1)
+        .split('|')
+        .map(c => c.trim());
+
+    // Kika på nästa rad – ska vara --- \| --- typ
+    const next = this.lines[this.currentLine + 1];
+    if (!next || !/^\s*\|(?:\s*:?[-]+:?\s*\|)+\s*$/.test(next)) {
+        // Inte en riktig tabell -> behandla bara som TEXT
+        return {
+            type: 'TEXT',
+            content: headerLine
+        };
+    }
+
+    // Hoppa över separatorrad
+    this.currentLine += 1;
+
+    const rows = [];
+    while (this.currentLine + 1 < this.lines.length) {
+        const peek = this.lines[this.currentLine + 1];
+        if (!/^\s*\|.*\|\s*$/.test(peek)) break;
+
+        this.currentLine += 1;
+        const cells = this.lines[this.currentLine]
+            .trim()
+            .slice(1, -1)
+            .split('|')
+            .map(c => c.trim());
+        rows.push(cells);
+    }
+
+    return {
+        type: 'TABLE',
+        header: headerCells,
+        rows
+    };
+    }
 }
 /*
     ============================================
@@ -161,6 +209,8 @@ export class Parser {
                 return this.parseCodeBlock();
             case 'QUOTE':
                 return this.parseQuote();
+            case 'TABLE':
+                return this.parseTable();
             case 'TEXT':
                 return this.parseParagraph();
             default:
@@ -246,6 +296,17 @@ export class Parser {
         clean(rootList);
 
         return rootList;
+    }
+
+    parseTable() {
+        const token = this.tokens[this.pos++];
+        return {
+            type: 'table',
+            header: token.header.map(cell => this.parseInline(cell)),
+            rows: token.rows.map(row =>
+                row.map(cell => this.parseInline(cell))
+            )
+        };
     }
 
 
@@ -475,6 +536,18 @@ export class Renderer {
 
             case 'blockquote':
                 return `<blockquote>${this.renderChildren(node.children)}</blockquote>`;
+
+            case 'table': {
+                const headerHtml = node.header
+                    .map(cells => `<th>${this.renderChildren(cells)}</th>`)
+                    .join('');
+                const bodyHtml = node.rows
+                    .map(row =>
+                        `<tr>${row.map(cells => `<td>${this.renderChildren(cells)}</td>`).join('')}</tr>`
+                    )
+                    .join('');
+                return `<table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
+            }
 
             case 'line_break':
                 return '<br>';
