@@ -8,6 +8,8 @@ const markdownSection = document.querySelector('#markdown');
 const previewSection = document.querySelector('#preview');
 const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
+const themeSelect = document.querySelector('#theme-select');
+
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -126,6 +128,26 @@ function loadFromLocalStorage() {
 function saveToLocalStorage() {
     localStorage.setItem('markdownText', inputText.value);
 }
+
+
+const savedTheme = localStorage.getItem('editorTheme') || '';
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeSelect.value = savedTheme;
+}
+
+themeSelect.addEventListener('change', (e) => {
+    const value = e.target.value;
+
+    if (value) {
+        document.documentElement.setAttribute('data-theme', value);
+        localStorage.setItem('editorTheme', value);
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('editorTheme');
+    }
+});
+
 
 inputText.addEventListener('input', () => {
     updateLineNumbers();
