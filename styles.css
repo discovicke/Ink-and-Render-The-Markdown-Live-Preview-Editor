@@ -1,6 +1,7 @@
 html {
     --black: #1D1E2C;
     --grape: #616394;
+    --dark-grape: #3a3c77;
     --dark-yellow: #FFBC1F;
     --yellow: #FFD166;
     --light-yellow: #FFE099;
@@ -16,9 +17,10 @@ html {
     html {
         --black: #F9F9F9;
         --grape: #FFE099;
-        --dark-yellow: #FFD166;
-        --yellow: #FFBC1F;
-        --light-yellow: #616394;
+        --dark-grape: #FFBC1F;
+        --dark-yellow: #616394;
+        --yellow: #FFD166;
+        --light-yellow: #3a3c77;
         --white: #1D1E2C;
     }
 }
@@ -157,6 +159,33 @@ main {
     margin-left: 0;
     color: var(--grape);
 }
+
+#preview code {
+    background-color: var(--light-yellow);
+    color: var(--dark-grape);
+    border-radius: 8px;
+    padding: 0.3em 0.3em;
+    overflow-x: auto;
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 0.9em;
+}
+
+#preview pre {
+    background-color: var(--light-yellow);
+    color: var(--dark-grape);
+    padding: 0.75em 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 0.9em;
+    margin: 1em 0;
+}
+
+#preview pre code {
+    background: transparent;
+    padding: 0;
+}
+
 
 #preview img {
     max-width: 85%;
