@@ -62,9 +62,17 @@ function parseMarkdown(text) {
     }
 }
 
+function updateLineNumbers() {
+    const lines = inputText.value.split('\n').length;
+    const lineNumbers = document.querySelector('#line-numbers');
+    lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => `<div>${i + 1}</div>`).join('');
+}
+
 inputText.addEventListener('input', () => {
+    updateLineNumbers();
     outputText.innerHTML = parseMarkdown(inputText.value);
 });
 
 // Initial rendering
+updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
