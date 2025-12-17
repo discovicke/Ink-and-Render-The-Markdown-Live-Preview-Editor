@@ -186,6 +186,7 @@ inputText.addEventListener('input', () => {
     resizeTextarea();
     outputText.innerHTML = parseMarkdown(inputText.value);
     saveToLocalStorage();
+    updateClearButtonState();
 });
 
 markdownSection.addEventListener('scroll', () => {
@@ -228,6 +229,7 @@ inputText.addEventListener('keydown', (e) => {
         resizeTextarea();
         outputText.innerHTML = parseMarkdown(inputText.value);
         saveToLocalStorage();
+        updateClearButtonState();
     }
 });
 
@@ -242,15 +244,27 @@ if (copyButton) {
     });
 }
 
+function updateClearButtonState() {
+    if (!clearButton) return;
+    clearButton.disabled = !inputText.value.trim();
+}
+
 if (clearButton) {
     clearButton.addEventListener('click', (event) => {
         event.preventDefault();
+
+        if (!inputText.value.trim()) return;
+
+        const confirmed = window.confirm('Är du säker på att du vill rensa din markdowntext?');
+        if (!confirmed) return;
+
         inputText.value = '';
         outputText.innerHTML = '';
         mirrorHighlight.innerHTML = '';
         updateLineNumbers();
         resizeTextarea();
         saveToLocalStorage();
+        updateClearButtonState();
     });
 }
 
@@ -259,3 +273,4 @@ loadFromLocalStorage();
 resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
+updateClearButtonState();
