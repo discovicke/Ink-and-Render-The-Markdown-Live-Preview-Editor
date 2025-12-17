@@ -11,6 +11,7 @@ const mirrorHighlight = document.querySelector('#text-highlight');
 const themeSelect = document.querySelector('#theme-select');
 const fontSelect = document.querySelector('#font-select');
 const copyButton = document.querySelector('#copy-markdown-btn');
+const clearButton = document.querySelector('#clear-markdown-btn');
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -238,6 +239,18 @@ if (copyButton) {
     copyButton.addEventListener('click', (event) => {
         event.preventDefault();
         copyMarkdownToClipboard();
+    });
+}
+
+if (clearButton) {
+    clearButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        inputText.value = '';
+        outputText.innerHTML = '';
+        mirrorHighlight.innerHTML = '';
+        updateLineNumbers();
+        resizeTextarea();
+        saveToLocalStorage();
     });
 }
 
