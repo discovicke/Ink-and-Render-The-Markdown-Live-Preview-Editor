@@ -268,7 +268,7 @@ main {
 }
 
 #line-numbers div.active-line {
-    color: var(--accent-primary);
+    color: var(--text-primary);
     font-weight: bold;
     scale: 1.1;
 }
@@ -380,6 +380,19 @@ main {
 
 #preview em {
     font-style: italic;
+}
+
+#preview ul,
+#preview ol {
+    padding-left: 1.5rem;
+    margin-left: 0;
+}
+
+#preview ul ul,
+#preview ul ol,
+#preview ol ul,
+#preview ol ol {
+    padding-left: 1.5rem;
 }
 
 #preview blockquote {

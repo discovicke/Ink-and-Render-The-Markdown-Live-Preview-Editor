@@ -256,7 +256,9 @@ export class Parser {
             // if deeper than current indentation -> create list child
             if (indent > stack[stack.length - 1].indent) {
                 const newList = {
-                    type: ordered ? 'ordered_list' : 'unordered_list',
+                    type: ordered
+                        ? 'ordered_list'
+                        : 'unordered_list',
                     indent,
                     children: []
                 };
