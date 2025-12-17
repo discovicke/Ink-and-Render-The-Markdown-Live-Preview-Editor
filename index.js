@@ -12,6 +12,9 @@ const themeSelect = document.querySelector('#theme-select');
 const fontSelect = document.querySelector('#font-select');
 const copyButton = document.querySelector('#copy-markdown-btn');
 const clearButton = document.querySelector('#clear-markdown-btn');
+const resetButton = document.querySelector('#reset-markdown-btn');
+
+const MARKDOWN_GUIDE_TEMPLATE = `# Markdown Guide`;
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -149,6 +152,38 @@ async function copyMarkdownToClipboard() {
     }
 }
 
+if (clearButton) {
+    clearButton.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        if (!inputText.value.trim()) return;
+
+        const confirmed = window.confirm('Är du säker på att du vill rensa din markdowntext?');
+        if (!confirmed) return;
+
+        inputText.value = '';
+        outputText.innerHTML = '';
+        mirrorHighlight.innerHTML = '';
+        updateLineNumbers();
+        resizeTextarea();
+        saveToLocalStorage();
+        updateClearButtonState();
+    });
+}
+
+if (resetButton) {
+    resetButton.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        inputText.value = MARKDOWN_GUIDE_TEMPLATE;
+        outputText.innerHTML = parseMarkdown(inputText.value);
+        updateLineNumbers();
+        resizeTextarea();
+        saveToLocalStorage();
+        updateClearButtonState();
+    });
+}
+
 
 const savedTheme = localStorage.getItem('editorTheme') || '';
 if (savedTheme) {
@@ -249,24 +284,7 @@ function updateClearButtonState() {
     clearButton.disabled = !inputText.value.trim();
 }
 
-if (clearButton) {
-    clearButton.addEventListener('click', (event) => {
-        event.preventDefault();
 
-        if (!inputText.value.trim()) return;
-
-        const confirmed = window.confirm('Är du säker på att du vill rensa din markdowntext?');
-        if (!confirmed) return;
-
-        inputText.value = '';
-        outputText.innerHTML = '';
-        mirrorHighlight.innerHTML = '';
-        updateLineNumbers();
-        resizeTextarea();
-        saveToLocalStorage();
-        updateClearButtonState();
-    });
-}
 
 // Initial rendering
 loadFromLocalStorage();
