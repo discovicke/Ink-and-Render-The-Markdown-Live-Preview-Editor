@@ -21,6 +21,29 @@
     --syntax-quote: #7d858a;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-body: #1f1f1f;
+        --bg-header: rgba(31, 31, 31, 0.4);
+        --bg-editor: rgba(31, 31, 31, 0.85);
+        --bg-preview: #262626;
+        --border-color: #3b3b3b;
+        --scrollbar-thumb: #4f4f4f;
+
+        --text-primary: #dcdcd9;
+        --text-secondary: #8f8f8c;
+        --accent-primary: #5c7080;
+
+        --syntax-bold: #f0f0ed;
+        --syntax-heading: #cf524a;
+        --syntax-link: #6b8ca8;
+        --syntax-link-hover: #e0f0da;
+        --syntax-link-visited: #45524f;
+        --syntax-code: #d9b882;
+        --syntax-quote: #666663;
+    }
+}
+
 html {
     background: var(--bg-body);
     color: var(--text-primary);
@@ -28,6 +51,50 @@ html {
     font-size: 16px;
     letter-spacing: 0.05em;
 }
+
+[data-theme="analog switch dark"] {
+    --bg-body: #1f1f1f;
+    --bg-header: rgba(31, 31, 31, 0.4);
+    --bg-editor: rgba(31, 31, 31, 0.85);
+    --bg-preview: #262626;
+    --border-color: #3b3b3b;
+    --scrollbar-thumb: #4f4f4f;
+
+    --text-primary: #dcdcd9;
+    --text-secondary: #8f8f8c;
+    --accent-primary: #5c7080;
+
+    --syntax-bold: #f0f0ed;
+    --syntax-heading: #cf524a;
+
+    --syntax-link: #6b8ca8;
+    --syntax-link-hover: #e0f0da;
+    --syntax-link-visited: #45524f;
+    --syntax-code: #d9b882;
+    --syntax-quote: #666663;
+}
+
+[data-theme="analog switch"] {
+    --bg-body: #dcdcd9;
+    --bg-header: rgba(220, 220, 217, 0.4);
+    --bg-editor: rgba(220, 220, 217, 0.85);
+    --bg-preview: #e6e6e3;
+    --border-color: #bfbfbc;
+    --scrollbar-thumb: #a6a6a3;
+
+    --text-primary: #2b2b2b;
+    --text-secondary: #666663;
+    --accent-primary: #3b4b59;
+
+    --syntax-bold: #2b2b2b;
+    --syntax-heading: #bf3a30;
+    --syntax-link: #3b4b59;
+    --syntax-link-hover: #dbead5;
+    --syntax-link-visited: #5a6e6b;
+    --syntax-code: #c9a66d;
+    --syntax-quote: #7d858a;
+}
+
 
 [data-theme="nordic"] {
     --bg-body: #161a1d;
@@ -255,7 +322,8 @@ main {
 .mirrorline-list, .mirrorline-quote {
     color: var(--syntax-quote);
 }
-.mirrorline-link , .mirrorline-image {
+
+.mirrorline-link, .mirrorline-image {
     text-decoration: underline;
     text-decoration-color: var(--syntax-link);
 }
