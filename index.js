@@ -1,6 +1,7 @@
 'use strict';
 
-import {Parser, Renderer, Tokenizer} from "./AST.js";
+import { Parser, Renderer, Tokenizer } from "./AST.js";
+import { markdownGuideTemplate } from "./markdownGuide.js";
 
 const inputText = document.querySelector('#input');
 const outputText = document.querySelector('#preview');
@@ -13,8 +14,6 @@ const fontSelect = document.querySelector('#font-select');
 const copyButton = document.querySelector('#copy-markdown-btn');
 const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
-
-const MARKDOWN_GUIDE_TEMPLATE = `# Markdown Guide`;
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -175,7 +174,7 @@ if (resetButton) {
     resetButton.addEventListener('click', (event) => {
         event.preventDefault();
 
-        inputText.value = MARKDOWN_GUIDE_TEMPLATE;
+        inputText.value = markdownGuideTemplate;
         outputText.innerHTML = parseMarkdown(inputText.value);
         updateLineNumbers();
         resizeTextarea();
