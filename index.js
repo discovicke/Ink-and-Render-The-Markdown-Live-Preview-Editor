@@ -10,6 +10,7 @@ const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
 const themeSelect = document.querySelector('#theme-select');
 const fontSelect = document.querySelector('#font-select');
+const copyButton = document.querySelector('#copy-markdown-btn');
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -131,6 +132,22 @@ function saveToLocalStorage() {
     localStorage.setItem('markdownText', inputText.value);
 }
 
+async function copyMarkdownToClipboard() {
+    if (!inputText) return;
+
+    const text = inputText.value || '';
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            console.info('Markdown copied to clipboard');
+            return;
+        } catch (err) {
+            console.warn('navigator.clipboard.writeText failed, falling back to execCommand', err);
+        }
+    }
+}
+
 
 const savedTheme = localStorage.getItem('editorTheme') || '';
 if (savedTheme) {
@@ -216,6 +233,13 @@ inputText.addEventListener('keydown', (e) => {
 
 inputText.addEventListener('click', updateLineNumbers);
 inputText.addEventListener('keyup', updateLineNumbers);
+
+if (copyButton) {
+    copyButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        copyMarkdownToClipboard();
+    });
+}
 
 // Initial rendering
 loadFromLocalStorage();
