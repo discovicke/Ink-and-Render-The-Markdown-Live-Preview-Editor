@@ -9,7 +9,7 @@ const previewSection = document.querySelector('#preview');
 const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
 const themeSelect = document.querySelector('#theme-select');
-
+const fontSelect = document.querySelector('#font-select');
 
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
@@ -138,6 +138,12 @@ if (savedTheme) {
     themeSelect.value = savedTheme;
 }
 
+const savedFont = localStorage.getItem('previewFont') || 'inherit';
+document.documentElement.style.setProperty('--preview-font-family', savedFont);
+if (fontSelect) {
+    fontSelect.value = savedFont;
+}
+
 themeSelect.addEventListener('change', (e) => {
     const value = e.target.value;
 
@@ -148,6 +154,12 @@ themeSelect.addEventListener('change', (e) => {
         document.documentElement.removeAttribute('data-theme');
         localStorage.removeItem('editorTheme');
     }
+});
+
+fontSelect.addEventListener('change', (e) => {
+    const value = e.target.value || 'inherit';
+    document.documentElement.style.setProperty('--preview-font-family', value);
+    localStorage.setItem('previewFont', value);
 });
 
 
@@ -176,7 +188,6 @@ previewSection.addEventListener('scroll', () => {
     );
 });
 
-// JS
 inputText.tabIndex = 0;
 
 inputText.addEventListener('keydown', (e) => {
