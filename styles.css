@@ -97,7 +97,6 @@ html {
     --syntax-quote: #7d858a;
 }
 
-
 [data-theme="nordic"] {
     --bg-body: #161a1d;
     --bg-header: rgba(22, 26, 29, 0.4);
@@ -413,6 +412,29 @@ main {
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 0.9em;
 }
+
+.code-block-wrapper {
+    position: relative;
+}
+
+.code-copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-header);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.code-copy-btn:active {
+    transform: scale(0.95);
+}
+
+
 
 #preview pre {
     background-color: var(--bg-editor);

@@ -241,6 +241,26 @@ previewSection.addEventListener('scroll', () => {
     );
 });
 
+previewSection.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.code-copy-btn');
+    if (!btn) return;
+
+    const code = btn.getAttribute('data-code')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+
+    try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = 'COPIED';
+        setTimeout(() => { btn.textContent = 'COPY'; }, 1000);
+    } catch (err) {
+        console.error('Copy failed', err);
+    }
+});
+
 inputText.tabIndex = 0;
 
 inputText.addEventListener('keydown', (e) => {

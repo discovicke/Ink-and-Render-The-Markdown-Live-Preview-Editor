@@ -521,8 +521,18 @@ export class Renderer {
             case 'code':
                 return `<code>${this.escapeHtml(node.value)}</code>`;
 
-            case 'code_block':
-                return `<pre><code>${this.escapeHtml(node.content)}</code></pre>`;
+            case 'code_block': {
+                const escaped = this.escapeHtml(node.content);
+                const langClass = node.language ? ` class="language-${this.escapeHtml(node.language)}"` : '';
+                return `
+                    <div class="code-block-wrapper">
+                        <button class="code-copy-btn" type="button" data-code="${escaped.replace(/"/g, '&quot;')}">
+                            COPY
+                        </button>
+                        <pre><code${langClass}>${escaped}</code></pre>
+                    </div>`;
+                }
+
 
             case 'link':
                 return `<a href="${this.escapeHtml(node.url)}">${this.escapeHtml(node.text)}</a>`;
