@@ -338,35 +338,26 @@ main {
     font-style: italic;
 }
 
-#resize-handle {
+#preview-wrapper {
     position: relative;
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#resize-handle {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     width: 8px;
-    height: 120px;
-    align-self: center;
+    height: 100%;
     cursor: col-resize;
     background-color: transparent;
-    flex: 0 0 auto;
+    z-index: 10;
 }
-
-#resize-handle::before,
-#resize-handle::after {
-    content: "";
-    position: absolute;
-    top: 10%;
-    bottom: 10%;
-    width: 2px;
-    background-color: var(--border-color);
-    border-radius: 2px;
-}
-
-#resize-handle::before {
-    left: 2px;
-}
-
-#resize-handle::after {
-    right: 2px;
-}
-
 
 #markdown,
 #preview {
@@ -375,6 +366,9 @@ main {
 }
 
 #preview {
+    flex: 1;
+    min-width: 0;
+    width: 95%;
     padding: 1em;
     background-color: var(--bg-preview);
     border-left: 2px solid var(--border-color);

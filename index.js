@@ -4,8 +4,8 @@ import { Parser, Renderer, Tokenizer } from "./AST.js";
 import { markdownGuideTemplate } from "./markdownGuide.js";
 
 const inputText = document.querySelector('#input');
-const outputText = document.querySelector('#preview');
-const markdownSection = document.querySelector('#markdown');
+const outputText = document.querySelector('#preview-content');
+const markdown = document.querySelector('#markdown');
 const previewSection = document.querySelector('#preview');
 const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
@@ -15,6 +15,7 @@ const copyButton = document.querySelector('#copy-markdown-btn');
 const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
 const resizeHandle = document.querySelector('#resize-handle');
+const previewWrapper = document.querySelector('#preview-wrapper');
 
 
 let isResizing = false;
@@ -172,14 +173,11 @@ if (resizeHandle) {
 
         if (newMarkdownWidth < minWidth || newPreviewWidth < minWidth) return;
 
-        const markdown = document.querySelector('#markdown');
-        const preview = document.querySelector('#preview');
-
         markdown.style.flex = '0 0 auto';
-        preview.style.flex = '0 0 auto';
+        previewWrapper.style.flex = '0 0 auto';
 
         markdown.style.width = newMarkdownWidth + 'px';
-        preview.style.width = newPreviewWidth + 'px';
+        previewWrapper.style.width = newPreviewWidth + 'px';
     });
 
     window.addEventListener('mouseup', () => {
@@ -261,9 +259,9 @@ inputText.addEventListener('input', () => {
     updateClearButtonState();
 });
 
-markdownSection.addEventListener('scroll', () => {
+markdown.addEventListener('scroll', () => {
     syncScroll(
-        markdownSection,
+        markdown,
         previewSection,
         { value: isSyncingFromMarkdown },
         { value: isSyncingFromPreview }
@@ -273,7 +271,7 @@ markdownSection.addEventListener('scroll', () => {
 previewSection.addEventListener('scroll', () => {
     syncScroll(
         previewSection,
-        markdownSection,
+        markdown,
         { value: isSyncingFromPreview },
         { value: isSyncingFromMarkdown }
     );
