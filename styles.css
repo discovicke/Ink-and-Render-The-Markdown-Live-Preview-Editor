@@ -338,6 +338,13 @@ main {
     font-style: italic;
 }
 
+#resize-handle {
+    width: 5px;
+    cursor: col-resize;
+    background-color: var(--border-color);
+    flex: 0 0 auto;
+}
+
 #markdown,
 #preview {
     flex: 1;
@@ -503,6 +510,10 @@ main {
 @media screen and (max-width: 768px) {
     main {
         flex-direction: column;
+    }
+
+    #resize-handle {
+        display: none;
     }
 
     #markdown,

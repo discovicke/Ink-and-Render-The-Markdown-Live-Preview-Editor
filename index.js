@@ -14,7 +14,10 @@ const fontSelect = document.querySelector('#font-select');
 const copyButton = document.querySelector('#copy-markdown-btn');
 const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
+const resizeHandle = document.querySelector('#resize-handle');
 
+
+let isResizing = false;
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
 
@@ -149,6 +152,41 @@ async function copyMarkdownToClipboard() {
             console.warn('navigator.clipboard.writeText failed, falling back to execCommand', err);
         }
     }
+}
+
+if (resizeHandle) {
+    resizeHandle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isResizing = true;
+        document.body.style.userSelect = 'none';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+
+        const mainRect = document.querySelector('main').getBoundingClientRect();
+        const minWidth = 150;
+
+        let newMarkdownWidth = e.clientX - mainRect.left;
+        let newPreviewWidth = mainRect.right - e.clientX;
+
+        if (newMarkdownWidth < minWidth || newPreviewWidth < minWidth) return;
+
+        const markdown = document.querySelector('#markdown');
+        const preview = document.querySelector('#preview');
+
+        markdown.style.flex = '0 0 auto';
+        preview.style.flex = '0 0 auto';
+
+        markdown.style.width = newMarkdownWidth + 'px';
+        preview.style.width = newPreviewWidth + 'px';
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isResizing) return;
+        isResizing = false;
+        document.body.style.userSelect = '';
+    });
 }
 
 if (clearButton) {
