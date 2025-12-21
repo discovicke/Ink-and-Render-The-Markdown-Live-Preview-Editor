@@ -245,6 +245,8 @@ body.view-preview #view-switch button[data-view="preview"] {
     display:flex;
     gap:0.25rem;
     background-color: var(--bg-preview);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 header {
@@ -315,8 +317,8 @@ body.view-preview #view-switch button[data-view="preview"] .icon-selected {
 }
 
 #settings-toggle {
-    padding: 0.3rem;
-    display: flex;
+    padding: 0.35rem;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     background: transparent;
@@ -326,11 +328,12 @@ body.view-preview #view-switch button[data-view="preview"] .icon-selected {
     z-index: 1000;
 }
 
+#settings-toggle img,
 #settings-toggle svg {
     width: 20px;
     height: 20px;
+    display: block;
 }
-
 #settings-dropdown {
     position: absolute;
     top: calc(100% + 0.5rem);

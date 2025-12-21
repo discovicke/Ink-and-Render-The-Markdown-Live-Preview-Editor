@@ -24,8 +24,8 @@ const settingsToggle = document.querySelector('#settings-toggle');
 const settingsDropdown = document.querySelector('#settings-dropdown');
 
 let isResizing = false;
-let isSyncingFromMarkdown = false;
-let isSyncingFromPreview = false;
+let isSyncingFromMarkdown = { value: false };
+let isSyncingFromPreview = { value: false };
 
 document.body.classList.add(`view-${defaultView}`);
 
@@ -377,8 +377,8 @@ markdown.addEventListener('scroll', () => {
     syncScroll(
         markdown,
         previewPane,
-        { value: isSyncingFromMarkdown },
-        { value: isSyncingFromPreview }
+        isSyncingFromMarkdown,
+        isSyncingFromPreview
     );
 });
 
@@ -386,8 +386,8 @@ previewPane.addEventListener('scroll', () => {
     syncScroll(
         previewPane,
         markdown,
-        { value: isSyncingFromPreview },
-        { value: isSyncingFromMarkdown }
+        isSyncingFromPreview,
+        isSyncingFromMarkdown
     );
 });
 
