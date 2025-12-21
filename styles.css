@@ -21,6 +21,8 @@
     --syntax-quote: #7d858a;
 
     --preview-font-family: inherit;
+    --view-btn-ease: cubic-bezier(.2,.8,.2,1);
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -243,7 +245,6 @@ body.view-preview #view-switch button[data-view="preview"] {
 #view-switch {
     margin-left:1rem;
     display:flex;
-    gap:0.25rem;
     background-color: var(--bg-preview);
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -274,46 +275,70 @@ header h1 {
 }
 
 #view-switch button {
-    padding: 0.2rem;
+    position: relative;
+    padding: 0.25rem;
+    width: 40px;
+    height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    color: var(--text-secondary);
+    overflow: visible;
+    transition: background-color 3ms var(--view-btn-ease),
+    transform 3ms var(--view-btn-ease),
+    color 3ms var(--view-btn-ease);
 }
 
+
 #view-switch button svg {
-    width: 18px;
-    height: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 3ms var(--view-btn-ease),
+    transform 3ms var(--view-btn-ease);
+    pointer-events: none;
     display: block;
 }
 
 #view-switch button .icon-default {
     display: block;
+    transform: translate(-50%, -50%) scale(1);
 }
 
 #view-switch button .icon-selected {
     display: none;
+    transform: translate(-50%, -45%) scale(0.92);
 }
 
 body.view-markdown #view-switch button[data-view="markdown"] .icon-default,
 body.view-both #view-switch button[data-view="both"] .icon-default,
 body.view-preview #view-switch button[data-view="preview"] .icon-default {
     display: none;
+    transform: translate(-50%, -45%) scale(0.92);
+
 }
 
 body.view-markdown #view-switch button[data-view="markdown"] .icon-selected,
 body.view-both #view-switch button[data-view="both"] .icon-selected,
 body.view-preview #view-switch button[data-view="preview"] .icon-selected {
     display: block;
+    transform: translate(-50%, -45%) scale(1.06);
+}
+
+body.view-markdown #view-switch button[data-view="markdown"],
+body.view-both #view-switch button[data-view="both"],
+body.view-preview #view-switch button[data-view="preview"] {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 #settings-wrapper {
     position: relative;
     margin-left: auto;
     z-index: 1000;
+    background-color: var(--bg-preview);
 }
 
 #settings-toggle {
@@ -321,7 +346,7 @@ body.view-preview #view-switch button[data-view="preview"] .icon-selected {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
+    background-color: var(--bg-preview);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     cursor: pointer;
