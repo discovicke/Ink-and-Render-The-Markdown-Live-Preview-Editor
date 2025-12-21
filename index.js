@@ -26,6 +26,9 @@ const settingsDropdown = document.querySelector('#settings-dropdown');
 let isResizing = false;
 let isSyncingFromMarkdown = { value: false };
 let isSyncingFromPreview = { value: false };
+let refreshRaf = null;
+let userResized = false;
+
 
 document.body.classList.add(`view-${defaultView}`);
 
@@ -123,11 +126,52 @@ function updateViewIcons(activeMode) {
     });
 }
 
+function refreshLayout() {
+    if (refreshRaf) cancelAnimationFrame(refreshRaf);
+    refreshRaf = requestAnimationFrame(() => {
+        try {
+            resizeTextarea();
+            updateLineNumbers();
+        } finally {
+            refreshRaf = null;
+        }
+    });
+}
+
 function setViewMode(mode) {
     document.body.classList.remove('view-markdown', 'view-both', 'view-preview');
     document.body.classList.add(`view-${mode}`);
     localStorage.setItem('viewMode', mode);
     updateViewIcons(mode);
+
+    if (mode === 'both') {
+        if (!userResized) {
+            markdown.style.width = '';
+            preview.style.width = '';
+            markdown.style.flex = '1 1 0';
+            preview.style.flex = '1 1 0';
+        } else {
+            markdown.style.flex = '0 0 auto';
+            preview.style.flex = '0 0 auto';
+        }
+    } else if (mode === 'markdown') {
+        markdown.style.width = '';
+        markdown.style.flex = '1 1 0';
+
+        preview.style.width = '';
+        preview.style.flex = '';
+    } else if (mode === 'preview') {
+        preview.style.width = '';
+        preview.style.flex = '1 1 0';
+
+        markdown.style.width = '';
+        markdown.style.flex = '';
+    }
+
+    // allow the DOM to settle then refresh layout (rAF already debounced inside)
+    setTimeout(refreshLayout, 0);
+    resizeTextarea();
+    updateLineNumbers();
 }
 
 function updateLineNumbers() {
@@ -243,6 +287,7 @@ if (resizeHandle) {
     resizeHandle.addEventListener('mousedown', (e) => {
         e.preventDefault();
         isResizing = true;
+        userResized = true;
         document.body.style.userSelect = 'none';
     });
 
@@ -262,12 +307,15 @@ if (resizeHandle) {
 
         markdown.style.width = newMarkdownWidth + 'px';
         preview.style.width = newPreviewWidth + 'px';
+
+        refreshLayout();
     });
 
     window.addEventListener('mouseup', () => {
         if (!isResizing) return;
         isResizing = false;
         document.body.style.userSelect = '';
+        refreshLayout();
     });
 
     resizeHandle.addEventListener('dblclick', (e) => {
@@ -278,7 +326,11 @@ if (resizeHandle) {
 
         markdown.style.flex = '1 1 0';
         preview.style.flex = '1 1 0';
+
+        userResized = false;
+        refreshLayout();
     });
+
 }
 
 
@@ -452,6 +504,8 @@ function updateClearButtonState() {
     if (!clearButton) return;
     clearButton.disabled = !inputText.value.trim();
 }
+
+window.addEventListener('resize', refreshLayout);
 
 
 
