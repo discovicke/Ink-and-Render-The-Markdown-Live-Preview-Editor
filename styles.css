@@ -793,6 +793,7 @@ label {
 @media screen and (max-width: 768px) {
     main {
         flex-direction: column;
+        min-height: 0;
     }
 
     header h1 {
@@ -816,11 +817,13 @@ label {
     }
 
     #markdown,
-    #preview-pane {
-        flex: 1 1 50%;
-        height: 50%;
+    #preview {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
         width: 100%;
-        overflow: auto;
+        min-height: 0;
+        overflow: hidden;
     }
 
     #preview-pane {
