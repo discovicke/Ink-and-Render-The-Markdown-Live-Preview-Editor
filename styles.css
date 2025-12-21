@@ -415,6 +415,14 @@ main {
     font-style: italic;
 }
 
+.active-mirror-line {
+    background-color: var(--bg-preview);
+    color: var(--text-primary);
+    border-radius: 3px;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
 #preview {
     position: relative;
     flex: 1;

@@ -143,6 +143,12 @@ function updateLineNumbers() {
 
     const mirrorLines = mirrorHighlight.querySelectorAll('.mirror-line');
 
+    mirrorLines.forEach((line, i) => {
+        if (i + 1 === currentLine) {
+            line.classList.add('active-mirror-line');
+        }
+    });
+
     lineNumbers.innerHTML = Array.from({length: lineCount}, (_, i) => {
         const lineNum = i + 1;
         const isActive = lineNum === currentLine
