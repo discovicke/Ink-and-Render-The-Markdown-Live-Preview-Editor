@@ -329,14 +329,14 @@ main {
 
 #line-numbers {
     flex: 0 0 3em;
-    padding: 1rem 0.5rem;
+    padding: 1rem 0 1rem 1rem;
     background-color: var(--bg-editor);
     color: var(--text-secondary);
     text-align: right;
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 1rem;
     user-select: none;
-    border-right: 1px solid rgba(97, 99, 148, 0.2);
+    border-right: 0;
 }
 
 #line-numbers div {
@@ -346,6 +346,7 @@ main {
 }
 
 #line-numbers div.active-line {
+    background-color: var(--bg-preview);
     color: var(--text-primary);
     font-weight: bold;
     scale: 1.1;
