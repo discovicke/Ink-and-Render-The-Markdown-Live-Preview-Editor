@@ -342,6 +342,7 @@ main {
 #line-numbers div {
     transition: color 0.3s ease;
     line-height: 1.5;
+    box-sizing: border-box;
 }
 
 #line-numbers div.active-line {

@@ -141,12 +141,15 @@ function updateLineNumbers() {
     const textBeforeCursor = textarea.value.substring(0, cursorPosition);
     const currentLine = textBeforeCursor.split('\n').length;
 
+    const mirrorLines = mirrorHighlight.querySelectorAll('.mirror-line');
+
     lineNumbers.innerHTML = Array.from({length: lineCount}, (_, i) => {
         const lineNum = i + 1;
         const isActive = lineNum === currentLine
             ? ' class="active-line"'
             : '';
-        return `<div${isActive}>${lineNum}</div>`;
+        const lineHeight = mirrorLines[i] ? mirrorLines[i].offsetHeight : 24;
+        return `<div${isActive} style="height: ${lineHeight}px; display: flex; align-items: flex-start;">${lineNum}</div>`;
     }).join('');
 }
 
