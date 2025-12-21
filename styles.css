@@ -237,6 +237,7 @@ body.view-both #view-switch button[data-view="both"],
 body.view-preview #view-switch button[data-view="preview"] {
     border-color: var(--accent-primary);
     background-color: var(--bg-editor);
+    color: var(--text-primary);
 }
 
 #view-switch {
@@ -273,12 +274,32 @@ header h1 {
     background: transparent;
     border-radius: 6px;
     border: 1px solid transparent;
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 
-#view-switch button img {
+#view-switch button svg {
     width: 18px;
     height: 18px;
+    display: block;
+}
+
+#view-switch button .icon-default {
+    display: block;
+}
+
+#view-switch button .icon-selected {
+    display: none;
+}
+
+body.view-markdown #view-switch button[data-view="markdown"] .icon-default,
+body.view-both #view-switch button[data-view="both"] .icon-default,
+body.view-preview #view-switch button[data-view="preview"] .icon-default {
+    display: none;
+}
+
+body.view-markdown #view-switch button[data-view="markdown"] .icon-selected,
+body.view-both #view-switch button[data-view="both"] .icon-selected,
+body.view-preview #view-switch button[data-view="preview"] .icon-selected {
     display: block;
 }
 
