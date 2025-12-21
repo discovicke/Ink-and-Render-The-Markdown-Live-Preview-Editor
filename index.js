@@ -17,6 +17,7 @@ const resetButton = document.querySelector('#reset-markdown-btn');
 const resizeHandle = document.querySelector('#resize-handle');
 const previewWrapper = document.querySelector('#preview-wrapper');
 const viewSwitch = document.querySelector('#view-switch');
+const viewButtons = viewSwitch ? Array.from(viewSwitch.querySelectorAll('button[data-view]')) : [];
 const defaultView = localStorage.getItem('viewMode') || 'both';
 
 let isResizing = false;
@@ -103,10 +104,27 @@ function syncScroll(from, to, fromFlag, toFlag) {
     fromFlag.value = false;
 }
 
+function updateViewIcons(activeMode) {
+    if (!viewButtons.length) return;
+    viewButtons.forEach((btn) => {
+        const mode = btn.getAttribute('data-view');
+        const iconBase = btn.getAttribute('data-icon');
+        const img = btn.querySelector('svg');
+        if (!img || !iconBase) return;
+
+        const isActive = mode === activeMode;
+        const fileName = isActive
+            ? `${iconBase}(select).svg`
+            : `${iconBase}.svg`;
+        img.src = `./icons/${fileName}`;
+    });
+}
+
 function setViewMode(mode) {
     document.body.classList.remove('view-markdown', 'view-both', 'view-preview');
     document.body.classList.add(`view-${mode}`);
     localStorage.setItem('viewMode', mode);
+    updateViewIcons(mode);
 }
 
 function updateLineNumbers() {
@@ -158,7 +176,6 @@ async function copyMarkdownToClipboard() {
         try {
             await navigator.clipboard.writeText(text);
             console.info('Markdown copied to clipboard');
-            return;
         } catch (err) {
             console.warn('navigator.clipboard.writeText failed, falling back to execCommand', err);
         }
@@ -377,3 +394,4 @@ resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
 updateClearButtonState();
+updateViewIcons(defaultView);

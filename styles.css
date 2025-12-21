@@ -232,6 +232,13 @@ body.view-preview #preview-wrapper {
     flex: 1 1 auto;
 }
 
+body.view-markdown #view-switch button[data-view="markdown"],
+body.view-both #view-switch button[data-view="both"],
+body.view-preview #view-switch button[data-view="preview"] {
+    border-color: var(--accent-primary);
+    background-color: var(--bg-editor);
+}
+
 #view-switch {
     margin-left:1rem;
     display:flex;
@@ -256,6 +263,23 @@ header {
 header h1 {
     margin: 0;
     font-size: 1.2rem;
+}
+
+#view-switch button {
+    padding: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    color: var(--text-primary);
+}
+
+#view-switch button img {
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 main {
