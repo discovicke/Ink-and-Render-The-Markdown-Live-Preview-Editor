@@ -212,11 +212,11 @@ body.view-both main {
     flex-direction: row;
 }
 body.view-both #markdown,
-body.view-both #preview-wrapper {
+body.view-both #preview {
     display: flex;
 }
 
-body.view-markdown #preview-wrapper {
+body.view-markdown #preview {
     display: none;
 }
 body.view-markdown #markdown {
@@ -227,7 +227,7 @@ body.view-markdown #markdown {
 body.view-preview #markdown {
     display: none;
 }
-body.view-preview #preview-wrapper {
+body.view-preview #preview {
     display: flex;
     flex: 1 1 auto;
 }
@@ -414,7 +414,7 @@ main {
     font-style: italic;
 }
 
-#preview-wrapper {
+#preview {
     position: relative;
     flex: 1;
     display: flex;
@@ -436,12 +436,12 @@ main {
 }
 
 #markdown,
-#preview {
+#preview-pane {
     flex: 1;
     min-height: 0;
 }
 
-#preview {
+#preview-pane {
     flex: 1;
     min-width: 0;
     width: 95%;
@@ -456,54 +456,54 @@ main {
     scrollbar-color: var(--scrollbar-thumb) var(--bg-preview);
 }
 
-#preview h1, h2 {
+#preview-pane h1, h2 {
     margin: 0.7rem 0 0.4rem 0;
     padding-bottom: 9px;
     border-bottom: 1px solid var(--accent-primary);
 }
 
-#preview *:first-child {
+#preview-pane *:first-child {
     margin-top: 0 !important;
 }
 
-#preview h6 {
+#preview-pane h6 {
     color: var(--text-secondary);
 }
 
-#preview p {
+#preview-pane p {
     line-height: 1.6;
     margin: 1em;
 }
 
-#preview strong {
+#preview-pane strong {
     font-weight: bold;
 }
 
-#preview em {
+#preview-pane em {
     font-style: italic;
 }
 
-#preview ul,
-#preview ol {
+#preview-pane ul,
+#preview-pane ol {
     padding-left: 1.5rem;
     margin-left: 0;
 }
 
-#preview ul ul,
-#preview ul ol,
-#preview ol ul,
-#preview ol ol {
+#preview-pane ul ul,
+#preview-pane ul ol,
+#preview-pane ol ul,
+#preview-pane ol ol {
     padding-left: 1.5rem;
 }
 
-#preview blockquote {
+#preview-pane blockquote {
     border-left: 4px solid var(--accent-primary);
     padding-left: 1em;
     margin-left: 0;
     color: var(--text-secondary);
 }
 
-#preview code {
+#preview-pane code {
     background-color: var(--bg-editor);
     color: var(--syntax-code);
     border-radius: 8px;
@@ -592,7 +592,7 @@ label {
 }
 
 
-#preview pre {
+#preview-pane pre {
     background-color: var(--bg-editor);
     color: var(--syntax-bold);
     padding: 0.75em 1em;
@@ -603,13 +603,13 @@ label {
     margin: 1em 0;
 }
 
-#preview pre code {
+#preview-pane pre code {
     background: transparent;
     padding: 0;
 }
 
 
-#preview img {
+#preview-pane img {
     max-width: 85%;
     width: auto;
     height: auto;
@@ -618,25 +618,25 @@ label {
     box-sizing: border-box;
 }
 
-#preview a {
+#preview-pane a {
     color: var(--syntax-link);
     text-decoration: underline;
     text-decoration-color: var(--syntax-link);
     text-underline-offset: 0.12em;
 }
 
-#preview a:hover,
-#preview a:focus-visible {
+#preview-pane a:hover,
+#preview-pane a:focus-visible {
     color: var(--syntax-link-hover);
     outline: none;
 }
 
-#preview a:visited {
+#preview-pane a:visited {
     color: var(--syntax-link-visited);
 }
 
 #markdown::-webkit-scrollbar,
-#preview::-webkit-scrollbar {
+#preview-pane::-webkit-scrollbar {
     width: 12px;
 }
 
@@ -670,14 +670,14 @@ label {
     }
 
     #markdown,
-    #preview {
+    #preview-pane {
         flex: 1 1 50%;
         height: 50%;
         width: 100%;
         overflow: auto;
     }
 
-    #preview {
+    #preview-pane {
         border-top: 2px solid var(--border-color);
         border-left: none;
     }

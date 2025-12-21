@@ -6,7 +6,7 @@ import { markdownGuideTemplate } from "./markdownGuide.js";
 const inputText = document.querySelector('#input');
 const outputText = document.querySelector('#preview-content');
 const markdown = document.querySelector('#markdown');
-const previewSection = document.querySelector('#preview');
+const previewPane = document.querySelector('#preview-pane');
 const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
 const themeSelect = document.querySelector('#theme-select');
@@ -16,7 +16,7 @@ const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
 const downloadButton = document.querySelector('#download-markdown-btn');
 const resizeHandle = document.querySelector('#resize-handle');
-const previewWrapper = document.querySelector('#preview-wrapper');
+const preview = document.querySelector('#preview');
 const viewSwitch = document.querySelector('#view-switch');
 const viewButtons = viewSwitch ? Array.from(viewSwitch.querySelectorAll('button[data-view]')) : [];
 const defaultView = localStorage.getItem('viewMode') || 'both';
@@ -211,10 +211,10 @@ if (resizeHandle) {
         if (newMarkdownWidth < minWidth || newPreviewWidth < minWidth) return;
 
         markdown.style.flex = '0 0 auto';
-        previewWrapper.style.flex = '0 0 auto';
+        preview.style.flex = '0 0 auto';
 
         markdown.style.width = newMarkdownWidth + 'px';
-        previewWrapper.style.width = newPreviewWidth + 'px';
+        preview.style.width = newPreviewWidth + 'px';
     });
 
     window.addEventListener('mouseup', () => {
@@ -227,10 +227,10 @@ if (resizeHandle) {
         e.preventDefault();
 
         markdown.style.width = '';
-        previewWrapper.style.width = '';
+        preview.style.width = '';
 
         markdown.style.flex = '1 1 0';
-        previewWrapper.style.flex = '1 1 0';
+        preview.style.flex = '1 1 0';
     });
 }
 
@@ -329,22 +329,22 @@ inputText.addEventListener('input', () => {
 markdown.addEventListener('scroll', () => {
     syncScroll(
         markdown,
-        previewSection,
+        previewPane,
         { value: isSyncingFromMarkdown },
         { value: isSyncingFromPreview }
     );
 });
 
-previewSection.addEventListener('scroll', () => {
+previewPane.addEventListener('scroll', () => {
     syncScroll(
-        previewSection,
+        previewPane,
         markdown,
         { value: isSyncingFromPreview },
         { value: isSyncingFromMarkdown }
     );
 });
 
-previewSection.addEventListener('click', async (e) => {
+previewPane.addEventListener('click', async (e) => {
     const btn = e.target.closest('.code-copy-btn');
     if (!btn) return;
 
