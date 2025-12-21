@@ -1,75 +1,74 @@
 'use strict'
-export const markdownGuideTemplate = `# Markdown syntax guide
+export const markdownGuideTemplate = `# Det här är h1
+## Det här är h2
+### Det här är h3
+#### Det här är h4
+##### Det här är h5
+###### Det här är h6
 
-## Headers
+## Textuttryck
+Det här är normal text
 
-# This is a Heading h1
-## This is a Heading h2
-### This is a Heading h3
-#### This is a Heading h4
-##### This is a Heading h5
-###### This is a Heading h6
+*Den här texten är kursiv*  
+_men den här är också kursiv_
 
-## Emphasis
+**Den här texten är fetstilt**  
+__Den här är också fetstilt__
 
-This text will be normal
-
-*This text will be italic*  
-_This will also be italic_
-
-**This text will be bold**  
-__This will also be bold__
-
-_You **can** combine them_
+_Och man kan blanda kursivt och **fetstilt** kursiv_
 
 ## Lists
+### O-ordnad lista
+* Första ankan
+* Andra ankan
+* Tredje ankan
+    * Tredje ankans första barn
+    * Tredje ankans andra barn
 
-### Unordered
+### Ordnad lista
+1. Första ankan
+2. Andra ankan
+3. Tredje ankan
+    1. Tredje ankans första barn
+    2. Tredje ankans andra barn
 
-* Item 1
-* Item 2
-* Item 2a
-* Item 2b
-    * Item 3a
-    * Item 3b
+## Bilder
+![Det här är en anktext.](/jsAnka.png "Det här är en ledsen anka.")
 
-### Ordered
+## Länkar
+Har du ett [favoritlag](https://sv.wikipedia.org/wiki/Anaheim_Ducks) i hockey? 
 
-1. Item 1
-2. Item 2
-3. Item 3
-    1. Item 3a
-    2. Item 3b
+## Blockcitat
+>I teorin är jag en vuxen människa.  
+>I praktiken är jag som JavaScript.
+>>... jag vet inte vad som är fel och istället för att krascha och be om hjälp så misslyckas jag under tystnad!
 
-## Images
+## Tabeller
 
-![This is an alt text.](/jsAnka.png "This is a sample duck.")
+| Jag hann med:  | Jag hann inte med: |
+|-|:-:|
+| Några saker över den här tabellen| Att färglägga kodblock baserat på språk|
+| Den här tabellen| Att laga min synkade scroll |
+| Men också några saker under den här tabellen | Att umgås med min sambo den här veckan |
 
-## Links
-
-You may be using [Markdown Live Preview](https://markdownlivepreview.com/).
-
-## Blockquotes
-
-> Markdown is a lightweight markup language with plain-text-formatting syntax, created in 2004 by John Gruber with Aaron Swartz.
->
->> Markdown is often used to format readme files, for writing messages in online discussion forums, and to create rich text using a plain text editor.
-
-## Tables
-
-| Left columns  | Right columns |
-| ------------- |:-------------:|
-| left foo      | right foo     |
-| left bar      | right bar     |
-| left baz      | right baz     |
-
-## Blocks of code
+## Kodblock
 
 \`\`\`
-let message = 'Hello world';
-alert(message);
+let anka = [];
+
+if (anka) {
+    console.log("Ankan finns.");
+}
+
+if (anka == true) {
+    console.log("Ankan är sann.");
+}
+
+if (anka == false) {
+    console.log("Ankan är också falsk.");
+}
 \`\`\`
 
-## Inline code
+## Inlinead kod
 
-This web site is using \`markedjs/marked\`.`;
+Den här webbsidan använder tyvärr inte \`markedjs/marked\`, den hade nog reggat olika markdown-uttryck bättre isåfall!`;
