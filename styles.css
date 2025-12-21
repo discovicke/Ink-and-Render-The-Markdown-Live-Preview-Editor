@@ -513,6 +513,34 @@ main {
     font-size: 0.9em;
 }
 
+#preview-pane table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+}
+
+#preview-pane th,
+#preview-pane td {
+    border: 1px solid var(--border-color);
+    padding: 0.6em 0.8em;
+    text-align: left;
+}
+
+#preview-pane th {
+    background-color: var(--bg-editor);
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+#preview-pane tr:nth-child(even) {
+    background-color: var(--bg-editor);
+}
+
+#preview-pane tr:hover {
+    background-color: var(--bg-header);
+}
+
 button {
     font-size: 0.7rem;
     padding: 0.2rem 0.5rem;
