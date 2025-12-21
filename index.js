@@ -20,6 +20,8 @@ const preview = document.querySelector('#preview');
 const viewSwitch = document.querySelector('#view-switch');
 const viewButtons = viewSwitch ? Array.from(viewSwitch.querySelectorAll('button[data-view]')) : [];
 const defaultView = localStorage.getItem('viewMode') || 'both';
+const settingsToggle = document.querySelector('#settings-toggle');
+const settingsDropdown = document.querySelector('#settings-dropdown');
 
 let isResizing = false;
 let isSyncingFromMarkdown = false;
@@ -198,6 +200,42 @@ if (viewSwitch) {
         if (!btn) return;
         const mode = btn.getAttribute('data-view');
         setViewMode(mode);
+    });
+}
+
+if (settingsToggle && settingsDropdown) {
+    document.body.appendChild(settingsDropdown);
+    settingsDropdown.style.position = 'absolute';
+    settingsDropdown.style.minWidth = '200px';
+
+    const positionDropdown = () => {
+        const btnRect = settingsToggle.getBoundingClientRect();
+        const top = window.scrollY + btnRect.bottom + 8;
+        const right = window.innerWidth - (window.scrollX + btnRect.right);
+        settingsDropdown.style.top = `${top}px`;
+        settingsDropdown.style.right = `${right}px`;
+    };
+
+    settingsToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsDropdown.classList.toggle('hidden');
+        if (!settingsDropdown.classList.contains('hidden')) {
+            positionDropdown();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (!settingsDropdown.classList.contains('hidden')) positionDropdown();
+    });
+    window.addEventListener('scroll', () => {
+        if (!settingsDropdown.classList.contains('hidden')) positionDropdown();
+    }, true);
+
+    document.addEventListener('click', (e) => {
+        if (settingsDropdown.classList.contains('hidden')) return;
+        if (!settingsDropdown.contains(e.target) && e.target !== settingsToggle) {
+            settingsDropdown.classList.add('hidden');
+        }
     });
 }
 

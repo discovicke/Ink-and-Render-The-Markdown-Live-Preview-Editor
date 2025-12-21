@@ -256,14 +256,19 @@ header {
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0.5rem 1rem;
     box-sizing: border-box;
     flex: 0 0 auto;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    z-index: 2000;
 }
 
 header h1 {
     margin: 0;
     font-size: 1.2rem;
+    white-space: nowrap;
 }
 
 #view-switch button {
@@ -303,6 +308,69 @@ body.view-preview #view-switch button[data-view="preview"] .icon-selected {
     display: block;
 }
 
+#settings-wrapper {
+    position: relative;
+    margin-left: auto;
+    z-index: 1000;
+}
+
+#settings-toggle {
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#settings-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+#settings-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--bg-preview);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 99999;
+}
+
+#settings-dropdown.hidden {
+    display: none;
+}
+
+#settings-dropdown label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    z-index: 99999;
+}
+
+#settings-dropdown label:has(input[type="checkbox"]) {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 99999;
+}
+
+#settings-dropdown select {
+    width: 100%;
+    z-index: 99999;
+}
+
 main {
     display: flex;
     flex: 1;
@@ -319,7 +387,8 @@ main {
 #markdown {
     flex: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: stretch;
     background-color: var(--bg-editor);
     overflow-y: auto;
     position: relative;
@@ -337,6 +406,7 @@ main {
     font-size: 1rem;
     user-select: none;
     border-right: 0;
+
 }
 
 #line-numbers div {
@@ -363,6 +433,29 @@ main {
     caret-color: var(--text-primary);
     height: auto;
     min-height: 100%;
+}
+
+#editor-toolbar {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: var(--bg-editor);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+#editor-toolbar button {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+}
+
+
+#editor-area {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: auto;
+    scrollbar-color: var(--scrollbar-thumb) var(--bg-editor);
 }
 
 #text-highlight {
@@ -699,6 +792,18 @@ label {
         flex-direction: column;
     }
 
+    header h1 {
+        font-size: 1rem;
+    }
+
+    #view-switch {
+        margin-left: 0;
+    }
+
+    #editor-toolbar {
+        justify-content: center;
+    }
+
     body.view-both main {
         flex-direction: column;
     }
@@ -718,5 +823,16 @@ label {
     #preview-pane {
         border-top: 2px solid var(--border-color);
         border-left: none;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    header h1 {
+        font-size: 0.9rem;
+    }
+
+    #view-switch button svg {
+        width: 16px;
+        height: 16px;
     }
 }
