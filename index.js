@@ -14,6 +14,7 @@ const fontSelect = document.querySelector('#font-select');
 const copyButton = document.querySelector('#copy-markdown-btn');
 const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
+const downloadButton = document.querySelector('#download-markdown-btn');
 const resizeHandle = document.querySelector('#resize-handle');
 const previewWrapper = document.querySelector('#preview-wrapper');
 const viewSwitch = document.querySelector('#view-switch');
@@ -263,6 +264,25 @@ if (resetButton) {
         resizeTextarea();
         saveToLocalStorage();
         updateClearButtonState();
+    });
+}
+
+if (downloadButton) {
+    downloadButton.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        const content = inputText.value;
+        const blob = new Blob([content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'document.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
     });
 }
 
