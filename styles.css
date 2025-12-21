@@ -208,6 +208,37 @@ body {
     overflow: hidden;
 }
 
+body.view-both main {
+    flex-direction: row;
+}
+body.view-both #markdown,
+body.view-both #preview-wrapper {
+    display: flex;
+}
+
+body.view-markdown #preview-wrapper {
+    display: none;
+}
+body.view-markdown #markdown {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+body.view-preview #markdown {
+    display: none;
+}
+body.view-preview #preview-wrapper {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+#view-switch {
+    margin-left:1rem;
+    display:flex;
+    gap:0.25rem;
+    background-color: var(--bg-preview);
+}
+
 header {
     position: sticky;
     background-color: var(--bg-header);
@@ -582,6 +613,10 @@ label {
 
 @media screen and (max-width: 768px) {
     main {
+        flex-direction: column;
+    }
+
+    body.view-both main {
         flex-direction: column;
     }
 

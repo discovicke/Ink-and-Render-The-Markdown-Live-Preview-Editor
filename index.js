@@ -16,11 +16,15 @@ const clearButton = document.querySelector('#clear-markdown-btn');
 const resetButton = document.querySelector('#reset-markdown-btn');
 const resizeHandle = document.querySelector('#resize-handle');
 const previewWrapper = document.querySelector('#preview-wrapper');
-
+const viewSwitch = document.querySelector('#view-switch');
+const defaultView = localStorage.getItem('viewMode') || 'both';
 
 let isResizing = false;
 let isSyncingFromMarkdown = false;
 let isSyncingFromPreview = false;
+
+document.body.classList.add(`view-${defaultView}`);
+
 
 function escapeHtml(text) {
     return text
@@ -99,6 +103,12 @@ function syncScroll(from, to, fromFlag, toFlag) {
     fromFlag.value = false;
 }
 
+function setViewMode(mode) {
+    document.body.classList.remove('view-markdown', 'view-both', 'view-preview');
+    document.body.classList.add(`view-${mode}`);
+    localStorage.setItem('viewMode', mode);
+}
+
 function updateLineNumbers() {
     const textarea = inputText;
     const linesArray = textarea.value.split('\n');
@@ -155,7 +165,15 @@ async function copyMarkdownToClipboard() {
     }
 }
 
-// index.js
+if (viewSwitch) {
+    viewSwitch.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-view]');
+        if (!btn) return;
+        const mode = btn.getAttribute('data-view');
+        setViewMode(mode);
+    });
+}
+
 if (resizeHandle) {
     resizeHandle.addEventListener('mousedown', (e) => {
         e.preventDefault();
