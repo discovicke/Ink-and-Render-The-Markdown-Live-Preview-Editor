@@ -71,7 +71,7 @@ html {
 
     --syntax-link: #6b8ca8;
     --syntax-link-hover: #e0f0da;
-    --syntax-link-visited: #45524f;
+    --syntax-link-visited: #5a6e6b;
     --syntax-code: #d9b882;
     --syntax-quote: #666663;
 }
@@ -92,8 +92,8 @@ html {
     --syntax-heading: #bf3a30;
     --syntax-link: #3b4b59;
     --syntax-link-hover: #dbead5;
-    --syntax-link-visited: #5a6e6b;
-    --syntax-code: #c9a66d;
+    --syntax-link-visited: #45524f;
+    --syntax-code: #866f48;
     --syntax-quote: #7d858a;
 }
 
@@ -130,9 +130,9 @@ html {
 
     --syntax-bold: #d4a86a;
     --syntax-heading: #c9756b;
-    --syntax-link: #8fa893;
+    --syntax-link: #A4DAB3FF;
     --syntax-link-hover: #d4a86a;
-    --syntax-link-visited: #5c5550;
+    --syntax-link-visited: #688c72;
     --syntax-code: #b8a995;
     --syntax-quote: #756f6a;
 }
@@ -518,7 +518,7 @@ button {
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     border: 1px solid var(--border-color);
-    background: var(--bg-header);
+    background: var(--bg-preview);
     color: var(--text-primary);
     font-weight: bold;
     cursor: pointer;
@@ -529,7 +529,7 @@ select {
     padding: 0.1rem 0.3rem;
     border-radius: 4px;
     border: 1px solid var(--border-color);
-    background: var(--bg-header);
+    background: var(--bg-preview);
     color: var(--text-primary);
     cursor: pointer;
 }
