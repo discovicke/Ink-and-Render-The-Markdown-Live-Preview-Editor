@@ -155,6 +155,7 @@ async function copyMarkdownToClipboard() {
     }
 }
 
+// index.js
 if (resizeHandle) {
     resizeHandle.addEventListener('mousedown', (e) => {
         e.preventDefault();
@@ -185,7 +186,18 @@ if (resizeHandle) {
         isResizing = false;
         document.body.style.userSelect = '';
     });
+
+    resizeHandle.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+
+        markdown.style.width = '';
+        previewWrapper.style.width = '';
+
+        markdown.style.flex = '1 1 0';
+        previewWrapper.style.flex = '1 1 0';
+    });
 }
+
 
 if (clearButton) {
     clearButton.addEventListener('click', (event) => {
