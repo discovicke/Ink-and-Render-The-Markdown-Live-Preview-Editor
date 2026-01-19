@@ -184,7 +184,7 @@ html {
 [data-theme="fintech"] {
     --bg-body: #050505;
     --bg-header: rgba(5, 5, 5, 0.4);
-    --bg-editor: rgba(5, 5, 5, 0.85);
+    --bg-editor: #181818;
     --bg-preview: #000000;
     --border-color: #1f1f1f;
     --scrollbar-thumb: #333333;
@@ -198,7 +198,7 @@ html {
     --syntax-link: #bfa2f7;
     --syntax-link-hover: #d4f02e;
     --syntax-link-visited: #5d4a82;
-    --syntax-code: #ffffff;
+    --syntax-code: #e9ffc4;
     --syntax-quote: #4d4d4d;
 }
 
@@ -634,6 +634,23 @@ main {
 #preview-pane ol ul,
 #preview-pane ol ol {
     padding-left: 1.5rem;
+}
+
+/* Hierarchical numbering for ordered lists */
+#preview-pane ol {
+    list-style: none;
+    counter-reset: item;
+}
+
+#preview-pane ol > li {
+    counter-increment: item;
+    position: relative;
+}
+
+#preview-pane ol > li::before {
+    content: counters(item, ".") ". ";
+    font-weight: bold;
+    margin-right: 0.5em;
 }
 
 #preview-pane blockquote {
