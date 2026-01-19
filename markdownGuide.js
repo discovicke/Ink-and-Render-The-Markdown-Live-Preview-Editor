@@ -43,7 +43,7 @@ _Och man kan blanda kursivt och **fetstilt** kursiv_
 - [x] Enkla och flerradskodblock
 - [x] Fotnoter
 - [x] Checklista
-- [x] JavaScript syntax highlighting
+- [x] JavaScript, CSS, HTML och C# syntax highlighting
 
 ## Bilder
 ![Det här är en anktext.](/jsAnka.png "Det här är en ledsen anka.")
@@ -138,6 +138,70 @@ export default greet;
     </div>
 </body>
 </html>
+\`\`\`
+
+### C#
+
+\`\`\`csharp
+// C# example with syntax highlighting
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+namespace MyApp
+{
+    /// <summary>
+    /// A simple class demonstrating C# features
+    /// </summary>
+    [Serializable]
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; private set; }
+        
+        // Constructor
+        public Person(string name, int age)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Age = age;
+        }
+        
+        // Method with LINQ
+        public static async Task<List<Person>> GetAdultsAsync(IEnumerable<Person> people)
+        {
+            var adults = people
+                .Where(p => p.Age >= 18)
+                .OrderBy(p => p.Name)
+                .ToList();
+            
+            await Task.Delay(100);
+            return adults;
+        }
+        
+        // Override ToString
+        public override string ToString() => $"{Name} ({Age})";
+    }
+    
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var person = new Person("Anna", 25);
+            Console.WriteLine($"Hello, {person.Name}!");
+            
+            // Numbers and types
+            int count = 42;
+            double pi = 3.14159;
+            decimal price = 99.99m;
+            var hex = 0xFF;
+            
+            /* Multi-line comment
+               demonstrating C# */
+            string interpolated = $"Count: {count}";
+            string verbatim = @"C:\\Users\\Name";
+        }
+    }
+}
 \`\`\`
 
 ## Inlinead kod

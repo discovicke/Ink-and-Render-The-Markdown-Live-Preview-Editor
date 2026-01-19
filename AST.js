@@ -620,6 +620,8 @@ export class Renderer {
                     highlighted = this.highlightCSS(node.content);
                 } else if (lang === 'html' || lang === 'htm') {
                     highlighted = this.highlightHTML(node.content);
+                } else if (lang === 'csharp' || lang === 'cs' || lang === 'c#') {
+                    highlighted = this.highlightCSharp(node.content);
                 } else {
                     highlighted = this.escapeHtml(node.content);
                 }
@@ -1108,4 +1110,238 @@ export class Renderer {
             }
         }).join('');
     }
+
+    // C# syntax highlighting
+    highlightCSharp(code) {
+        const tokens = [];
+        let i = 0;
+
+        const keywords = ['if', 'else', 'switch', 'case', 'default', 'for', 'foreach', 'while', 'do', 'break', 'continue', 'return', 'throw', 'try', 'catch', 'finally', 'new', 'typeof', 'is', 'as', 'sizeof', 'stackalloc', 'checked', 'unchecked', 'lock', 'using', 'yield', 'await', 'async', 'goto', 'in', 'out', 'ref', 'params', 'base', 'this', 'when', 'where', 'select', 'from', 'orderby', 'group', 'by', 'join', 'let', 'ascending', 'descending', 'on', 'equals', 'into'];
+        const declarationKeywords = ['class', 'struct', 'interface', 'enum', 'delegate', 'namespace', 'public', 'private', 'protected', 'internal', 'static', 'readonly', 'const', 'volatile', 'virtual', 'override', 'abstract', 'sealed', 'extern', 'unsafe', 'partial', 'get', 'set', 'add', 'remove', 'value', 'var', 'dynamic', 'record', 'init'];
+        const typeKeywords = ['void', 'int', 'long', 'short', 'byte', 'sbyte', 'uint', 'ulong', 'ushort', 'float', 'double', 'decimal', 'char', 'bool', 'string', 'object'];
+        const valueKeywords = ['null', 'true', 'false', 'default'];
+        const operators = ['=>', '??', '?.', '==', '!=', '<=', '>=', '&&', '||', '++', '--', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>=', '??=', '+', '-', '*', '/', '%', '<', '>', '!', '=', '&', '|', '^', '~', '?', ':', ';', ',', '.', '::'];
+
+        while (i < code.length) {
+            // Multi-line comments
+            if (code.slice(i, i + 2) === '/*') {
+                let end = code.indexOf('*/', i + 2);
+                if (end === -1) end = code.length;
+                else end += 2;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Single-line comments
+            if (code.slice(i, i + 2) === '//') {
+                let end = code.indexOf('\n', i);
+                if (end === -1) end = code.length;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // XML documentation comments
+            if (code.slice(i, i + 3) === '///') {
+                let end = code.indexOf('\n', i);
+                if (end === -1) end = code.length;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Attributes [...]
+            if (code[i] === '[') {
+                let j = i + 1;
+                let depth = 1;
+                while (j < code.length && depth > 0) {
+                    if (code[j] === '[') depth++;
+                    else if (code[j] === ']') depth--;
+                    j++;
+                }
+                tokens.push({ type: 'attribute', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // String literals (verbatim @"..." and interpolated $"...")
+            if (code[i] === '@' && code[i + 1] === '"') {
+                let j = i + 2;
+                while (j < code.length) {
+                    if (code[j] === '"') {
+                        if (code[j + 1] === '"') {
+                            j += 2; // Escaped quote
+                        } else {
+                            j++;
+                            break;
+                        }
+                    } else {
+                        j++;
+                    }
+                }
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Interpolated strings $"..."
+            if (code[i] === '$' && code[i + 1] === '"') {
+                let j = i + 2;
+                let escaped = false;
+                while (j < code.length) {
+                    if (escaped) {
+                        escaped = false;
+                    } else if (code[j] === '\\') {
+                        escaped = true;
+                    } else if (code[j] === '"') {
+                        j++;
+                        break;
+                    }
+                    j++;
+                }
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Regular string literals
+            if (code[i] === '"') {
+                let j = i + 1;
+                let escaped = false;
+                while (j < code.length) {
+                    if (escaped) {
+                        escaped = false;
+                    } else if (code[j] === '\\') {
+                        escaped = true;
+                    } else if (code[j] === '"') {
+                        j++;
+                        break;
+                    }
+                    j++;
+                }
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Character literals
+            if (code[i] === "'") {
+                let j = i + 1;
+                if (code[j] === '\\') j += 2;
+                else j++;
+                if (code[j] === "'") j++;
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Numbers
+            if (/\d/.test(code[i]) || (code[i] === '.' && /\d/.test(code[i + 1]))) {
+                let j = i;
+                if (code[j] === '0' && (code[j + 1] === 'x' || code[j + 1] === 'X')) {
+                    j += 2;
+                    while (j < code.length && /[0-9a-fA-F_]/.test(code[j])) j++;
+                } else if (code[j] === '0' && (code[j + 1] === 'b' || code[j + 1] === 'B')) {
+                    j += 2;
+                    while (j < code.length && /[01_]/.test(code[j])) j++;
+                } else {
+                    while (j < code.length && /[0-9_.]/.test(code[j])) j++;
+                    if (code[j] === 'e' || code[j] === 'E') {
+                        j++;
+                        if (code[j] === '+' || code[j] === '-') j++;
+                        while (j < code.length && /[0-9_]/.test(code[j])) j++;
+                    }
+                }
+                // Suffixes: f, d, m, L, UL, etc.
+                if (j < code.length && /[fFdDmMlLuU]/.test(code[j])) {
+                    j++;
+                    if (j < code.length && /[lLuU]/.test(code[j])) j++;
+                }
+                tokens.push({ type: 'number', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Identifiers and keywords
+            if (/[a-zA-Z_]/.test(code[i])) {
+                let j = i;
+                while (j < code.length && /[a-zA-Z0-9_]/.test(code[j])) j++;
+                const word = code.slice(i, j);
+
+                // Check for generic type parameters <T>
+                let isGeneric = false;
+                if (code[j] === '<') {
+                    const tempJ = j + 1;
+                    let depth = 1;
+                    let k = tempJ;
+                    while (k < code.length && depth > 0) {
+                        if (code[k] === '<') depth++;
+                        else if (code[k] === '>') depth--;
+                        k++;
+                    }
+                    if (depth === 0) {
+                        isGeneric = true;
+                    }
+                }
+
+                if (keywords.includes(word)) {
+                    tokens.push({ type: 'keyword', value: word });
+                } else if (declarationKeywords.includes(word)) {
+                    tokens.push({ type: 'keyword', value: word });
+                } else if (typeKeywords.includes(word)) {
+                    tokens.push({ type: 'keyword', value: word });
+                } else if (valueKeywords.includes(word)) {
+                    tokens.push({ type: 'literal', value: word });
+                } else if (/^[A-Z]/.test(word) || isGeneric) {
+                    // PascalCase likely indicates a type/class
+                    tokens.push({ type: 'class', value: word });
+                } else {
+                    tokens.push({ type: 'identifier', value: word });
+                }
+                i = j;
+                continue;
+            }
+
+            // Operators
+            let foundOperator = false;
+            for (let op of operators.sort((a, b) => b.length - a.length)) {
+                if (code.slice(i, i + op.length) === op) {
+                    tokens.push({ type: 'operator', value: op });
+                    i += op.length;
+                    foundOperator = true;
+                    break;
+                }
+            }
+            if (foundOperator) continue;
+
+            // Parentheses and brackets
+            if ('(){}[]'.includes(code[i])) {
+                tokens.push({ type: 'punctuation', value: code[i] });
+                i++;
+                continue;
+            }
+
+            // Whitespace and other characters
+            tokens.push({ type: 'text', value: code[i] });
+            i++;
+        }
+
+        return tokens.map(t => {
+            const escaped = this.escapeHtml(t.value);
+            switch (t.type) {
+                case 'comment': return `<span class="hljs-comment">${escaped}</span>`;
+                case 'keyword': return `<span class="hljs-keyword">${escaped}</span>`;
+                case 'string': return `<span class="hljs-string">${escaped}</span>`;
+                case 'number': return `<span class="hljs-number">${escaped}</span>`;
+                case 'literal': return `<span class="hljs-literal">${escaped}</span>`;
+                case 'attribute': return `<span class="hljs-meta">${escaped}</span>`;
+                case 'class': return `<span class="hljs-title">${escaped}</span>`;
+                case 'operator': return `<span class="hljs-operator">${escaped}</span>`;
+                case 'punctuation': return `<span class="hljs-punctuation">${escaped}</span>`;
+                default: return escaped;
+            }
+        }).join('');
+    }
 }
+
