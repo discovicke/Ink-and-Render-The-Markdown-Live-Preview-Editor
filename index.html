@@ -113,6 +113,18 @@
     <section id="preview">
         <div id="resize-handle"></div>
         <div id="preview-pane">
+            <button id="toc-toggle" type="button" title="Table of Contents" aria-label="Toggle Table of Contents">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" fill="currentColor"/>
+                </svg>
+            </button>
+            <div id="toc-panel" class="hidden">
+                <div id="toc-header">
+                    <h3>Table of Contents</h3>
+                    <button id="toc-close" type="button" title="Close" aria-label="Close Table of Contents">×</button>
+                </div>
+                <nav id="toc-content"></nav>
+            </div>
             <div id="preview-content"></div>
         </div>
     </section>
