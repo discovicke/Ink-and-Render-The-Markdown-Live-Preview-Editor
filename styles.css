@@ -867,6 +867,18 @@ main {
 
 #collapse-all-toggle svg {
     pointer-events: none;
+    width: 20px;
+    height: 20px;
+}
+
+#collapse-all-toggle .collapse-icon,
+#collapse-all-toggle .expand-icon {
+    position: absolute;
+    transition: opacity 0.3s ease;
+}
+
+#collapse-all-toggle .hidden {
+    opacity: 0;
 }
 
 /* Table of Contents Panel */
