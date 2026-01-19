@@ -18,26 +18,26 @@
 
 // AST Parser and Renderer
 import { Parser, Renderer, Tokenizer } from "./AST.js";
-import { markdownGuideTemplate } from "./markdownGuide.js";
+import { markdownGuideTemplate } from "./utils/markdownGuide.js";
 
 // Editor modules
-import { updateLineNumbers, resizeTextarea } from './js/editor/lineNumbers.js';
-import { syncScroll, createScrollFlags } from './js/editor/syncScroll.js';
+import { updateLineNumbers, resizeTextarea } from './editor/lineNumbers.js';
+import { syncScroll, createScrollFlags } from './editor/syncScroll.js';
 
 // Preview modules
-import { generateTableOfContents, updateActiveToC, setupToCToggle } from './js/preview/tableOfContents.js';
-import { makeHeadingsCollapsible, updateCollapseAllIcon, setupCollapseAllToggle } from './js/preview/collapsible.js';
+import { generateTableOfContents, updateActiveToC, setupToCToggle } from './preview/tableOfContents.js';
+import { makeHeadingsCollapsible, updateCollapseAllIcon, setupCollapseAllToggle } from './preview/collapsible.js';
 
 // Utility modules
-import { saveMarkdownText, loadMarkdownText, loadViewMode } from './js/utils/storage.js';
-import { updateStatsDisplay } from './js/utils/stats.js';
-import { setupCodeCopyButtons } from './js/utils/clipboard.js';
+import { saveMarkdownText, loadMarkdownText, loadViewMode } from './utils/storage.js';
+import { updateStatsDisplay } from './utils/stats.js';
+import { setupCodeCopyButtons } from './utils/clipboard.js';
 
 // UI modules
-import { updateViewIcons, setupViewSwitch } from './js/ui/viewMode.js';
-import { setupResizeHandle } from './js/ui/resizeHandle.js';
-import { setupSettingsDropdown, setupThemeSelect, setupFontSelect, setupSyncScrollCheckbox } from './js/ui/settings.js';
-import { setupCopyButton, setupClearButton, setupResetButton, setupDownloadButton, updateClearButtonState } from './js/ui/toolbar.js';
+import { updateViewIcons, setupViewSwitch } from './ui/viewMode.js';
+import { setupResizeHandle } from './ui/resizeHandle.js';
+import { setupSettingsDropdown, setupThemeSelect, setupFontSelect, setupSyncScrollCheckbox } from './ui/settings.js';
+import { setupCopyButton, setupClearButton, setupResetButton, setupDownloadButton, updateClearButtonState } from './ui/toolbar.js';
 
 // =============================================================================
 // DOM ELEMENT REFERENCES
