@@ -13,7 +13,7 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "js/main.js",
   "scripts": {
     "test": "node test/run.js"
   },
