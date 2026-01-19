@@ -34,6 +34,7 @@ _Och man kan blanda kursivt och **fetstilt** kursiv_
 
 ### Checklista
 - [x] Automatisk sparning till localStorage
+- [ ] Kaffepaus
 - [x] Länkar och bilder
 - [x] Punktlistor med undernivåer
 - [x] Nummerlistor med undernivåer
