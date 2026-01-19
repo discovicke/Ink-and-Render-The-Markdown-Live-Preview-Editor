@@ -23,6 +23,9 @@ const viewButtons = viewSwitch ? Array.from(viewSwitch.querySelectorAll('button[
 const defaultView = localStorage.getItem('viewMode') || 'both';
 const settingsToggle = document.querySelector('#settings-toggle');
 const settingsDropdown = document.querySelector('#settings-dropdown');
+const wordCountEl = document.querySelector('#word-count');
+const charCountEl = document.querySelector('#char-count');
+const readTimeEl = document.querySelector('#read-time');
 
 let isResizing = false;
 let isSyncingFromMarkdown = { value: false };
@@ -220,6 +223,36 @@ function syncScroll(from, to, fromFlag, toFlag) {
     requestAnimationFrame(() => {
         fromFlag.value = false;
     });
+}
+
+function updateStats() {
+    const text = inputText.value;
+
+    // Character count (including spaces)
+    const charCount = text.length;
+
+    // Word count (split by whitespace and filter out empty strings)
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = text.trim().length === 0 ? 0 : words.length;
+
+    // Reading time calculation (average reading speed: 200 words per minute)
+    const readingTimeMinutes = Math.ceil(wordCount / 200);
+    const readTimeText = readingTimeMinutes === 0 ? '~0 min read' :
+                         readingTimeMinutes === 1 ? '~1 min read' :
+                         `~${readingTimeMinutes} min read`;
+
+    // Update UI
+    if (wordCountEl) {
+        wordCountEl.textContent = wordCount === 1 ? '1 word' : `${wordCount} words`;
+    }
+
+    if (charCountEl) {
+        charCountEl.textContent = charCount === 1 ? '1 char' : `${charCount} chars`;
+    }
+
+    if (readTimeEl) {
+        readTimeEl.textContent = readTimeText;
+    }
 }
 
 function updateViewIcons(activeMode) {
@@ -467,6 +500,7 @@ if (clearButton) {
         resizeTextarea();
         saveToLocalStorage();
         updateClearButtonState();
+        updateStats();
     });
 }
 
@@ -480,6 +514,7 @@ if (resetButton) {
         resizeTextarea();
         saveToLocalStorage();
         updateClearButtonState();
+        updateStats();
     });
 }
 
@@ -550,6 +585,7 @@ inputText.addEventListener('input', () => {
     outputText.innerHTML = parseMarkdown(inputText.value);
     saveToLocalStorage();
     updateClearButtonState();
+    updateStats();
 });
 
 
@@ -643,4 +679,5 @@ resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
 updateClearButtonState();
+updateStats();
 updateViewIcons(defaultView);

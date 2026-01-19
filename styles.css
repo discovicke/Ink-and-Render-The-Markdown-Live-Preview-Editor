@@ -610,16 +610,70 @@ main {
 
 #editor-toolbar {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding: 0.5rem;
     background: var(--bg-editor);
     border-bottom: 1px solid var(--border-color);
     flex-wrap: wrap;
+    align-items: center;
 }
 
 #editor-toolbar button {
     font-size: 0.65rem;
     padding: 0.15rem 0.4rem;
+    flex-shrink: 0;
+}
+
+#stats-counter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+    user-select: none;
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+#stats-counter span {
+    white-space: nowrap;
+}
+
+#stats-counter .stats-separator {
+    opacity: 0.5;
+}
+
+#word-count,
+#char-count,
+#read-time {
+    cursor: help;
+    transition: color 0.2s ease;
+}
+
+#word-count:hover,
+#char-count:hover,
+#read-time:hover {
+    color: var(--text-primary);
+}
+
+/* Medium screens: adjust stats counter */
+@media screen and (max-width: 800px) {
+    #editor-toolbar {
+        gap: 0.35rem;
+    }
+
+    #stats-counter {
+        font-size: 0.65rem;
+        gap: 0.4rem;
+        flex-basis: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+        margin-top: 0.25rem;
+        padding-top: 0.35rem;
+        border-top: 1px solid var(--border-color);
+    }
 }
 
 
@@ -1036,6 +1090,34 @@ label {
     #view-switch button svg {
         width: 16px;
         height: 16px;
+    }
+
+    #stats-counter {
+        font-size: 0.6rem;
+        gap: 0.5rem;
+    }
+
+    #stats-counter span:not(.stats-separator) {
+        display: none;
+    }
+
+    #stats-counter span:not(.stats-separator):first-of-type,
+    #stats-counter span:not(.stats-separator):nth-of-type(3) {
+        display: inline;
+    }
+
+    #stats-counter .stats-separator:first-of-type {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #stats-counter {
+        width: 100%;
+        justify-content: center;
+        order: 10;
+        padding-top: 0.25rem;
+        border-top: 1px solid var(--border-color);
     }
 }
 
