@@ -809,6 +809,25 @@ main {
     position: relative;
 }
 
+#preview-pane hr {
+    border: none;
+    border-top: 2px solid var(--border-color);
+    margin: 2em 0;
+}
+
+/* Markdown divider created by --- */
+#preview-pane hr.md-divider {
+    border-top: 1px solid var(--accent-primary);
+    margin: 1.25em 0;
+    opacity: 1;
+}
+
+/* Footnotes separator stays subtle */
+#preview-pane hr.footnotes-separator {
+    border-top: 1px solid var(--border-color);
+    margin: 2em 0 1em 0;
+}
+
 /* Table of Contents Toggle Button */
 #toc-toggle {
     position: fixed;
