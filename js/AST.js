@@ -35,6 +35,13 @@ export class Tokenizer {
             return { type: 'BLANK_LINE' };
         }
 
+        // Horizontal rule / divider
+        // Markdown spec typically allows: --- or *** or ___ (with optional surrounding whitespace)
+        // We support at least '---' as requested.
+        if (/^\s*(---|\*\*\*|___)\s*$/.test(line)) {
+            return { type: 'HORIZONTAL_RULE' };
+        }
+
         // Tabellrad (börjar med "|")
         if (/^\s*\|.*\|\s*$/.test(line)) {
             return this.tokenizeTable(line);
@@ -224,6 +231,8 @@ export class Parser {
         switch (token.type) {
             case 'HEADING':
                 return this.parseHeading();
+            case 'HORIZONTAL_RULE':
+                return this.parseHorizontalRule();
             case 'LIST_ITEM':
                 return this.parseList();
             case 'CHECKLIST_ITEM':
@@ -242,6 +251,13 @@ export class Parser {
                 this.pos++;
                 return null;
         }
+    }
+
+    parseHorizontalRule() {
+        this.pos++;
+        return {
+            type: 'horizontal_rule'
+        };
     }
 
     parseHeading() {
@@ -598,6 +614,9 @@ export class Renderer {
                 const content = this.renderChildren(node.children);
                 return `<h${node.level}>${content}</h${node.level}>`;
 
+            case 'horizontal_rule':
+                return `<hr class="md-divider">`;
+
             case 'paragraph':
                 return `<p>${this.renderChildren(node.children)}</p>`;
 
@@ -900,7 +919,6 @@ export class Renderer {
             if (code.slice(i, i + 2) === '/*') {
                 let end = code.indexOf('*/', i + 2);
                 if (end === -1) end = code.length;
-                else end += 2;
                 tokens.push({ type: 'comment', value: code.slice(i, end) });
                 i = end;
                 continue;
