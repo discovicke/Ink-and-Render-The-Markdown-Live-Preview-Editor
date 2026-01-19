@@ -55,12 +55,6 @@ Quality-of-life:
 npm install
 ```
 
-### Run tests
-
-```bash
-npm test
-```
-
 ### Run locally (browser)
 
 This is a static project. Open `index.html` directly **or** serve the folder with any static server.
@@ -68,9 +62,6 @@ This is a static project. Open `index.html` directly **or** serve the folder wit
 Examples (optional):
 
 ```bash
-# Python
-python -m http.server
-
 # Node (if you have it)
 npx serve
 ```
