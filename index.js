@@ -1,196 +1,113 @@
 'use strict';
 
+/**
+ * =============================================================================
+ * MARKDOWN PREVIEW APPLICATION
+ * =============================================================================
+ * Main entry point for the markdown preview editor application.
+ * Imports and orchestrates all modules for a modular, maintainable codebase.
+ *
+ * @author discovicke
+ * @version 2.0.0
+ * =============================================================================
+ */
+
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// AST Parser and Renderer
 import { Parser, Renderer, Tokenizer } from "./AST.js";
 import { markdownGuideTemplate } from "./markdownGuide.js";
 
-const inputText = document.querySelector('#input');
-const outputText = document.querySelector('#preview-content');
-const markdown = document.querySelector('#markdown');
-const editorArea = document.querySelector('#editor-area');
-const previewPane = document.querySelector('#preview-pane');
-const syncCheckbox = document.querySelector('#sync-scroll');
-const mirrorHighlight = document.querySelector('#text-highlight');
-const themeSelect = document.querySelector('#theme-select');
-const fontSelect = document.querySelector('#font-select');
-const copyButton = document.querySelector('#copy-markdown-btn');
-const clearButton = document.querySelector('#clear-markdown-btn');
-const resetButton = document.querySelector('#reset-markdown-btn');
-const downloadButton = document.querySelector('#download-markdown-btn');
-const resizeHandle = document.querySelector('#resize-handle');
-const preview = document.querySelector('#preview');
-const viewSwitch = document.querySelector('#view-switch');
-const viewButtons = viewSwitch ? Array.from(viewSwitch.querySelectorAll('button[data-view]')) : [];
-const defaultView = localStorage.getItem('viewMode') || 'both';
-const settingsToggle = document.querySelector('#settings-toggle');
-const settingsDropdown = document.querySelector('#settings-dropdown');
-const wordCountEl = document.querySelector('#word-count');
-const charCountEl = document.querySelector('#char-count');
-const readTimeEl = document.querySelector('#read-time');
-const tocToggle = document.querySelector('#toc-toggle');
-const tocPanel = document.querySelector('#toc-panel');
-const tocClose = document.querySelector('#toc-close');
-const tocContent = document.querySelector('#toc-content');
-const collapseAllToggle = document.querySelector('#collapse-all-toggle');
+// Editor modules
+import { updateLineNumbers, resizeTextarea } from './js/editor/lineNumbers.js';
+import { syncScroll, createScrollFlags } from './js/editor/syncScroll.js';
 
-let isResizing = false;
-let isSyncingFromMarkdown = { value: false };
-let isSyncingFromPreview = { value: false };
+// Preview modules
+import { generateTableOfContents, updateActiveToC, setupToCToggle } from './js/preview/tableOfContents.js';
+import { makeHeadingsCollapsible, updateCollapseAllIcon, setupCollapseAllToggle } from './js/preview/collapsible.js';
+
+// Utility modules
+import { saveMarkdownText, loadMarkdownText, loadViewMode } from './js/utils/storage.js';
+import { updateStatsDisplay } from './js/utils/stats.js';
+import { setupCodeCopyButtons } from './js/utils/clipboard.js';
+
+// UI modules
+import { updateViewIcons, setupViewSwitch } from './js/ui/viewMode.js';
+import { setupResizeHandle } from './js/ui/resizeHandle.js';
+import { setupSettingsDropdown, setupThemeSelect, setupFontSelect, setupSyncScrollCheckbox } from './js/ui/settings.js';
+import { setupCopyButton, setupClearButton, setupResetButton, setupDownloadButton, updateClearButtonState } from './js/ui/toolbar.js';
+
+// =============================================================================
+// DOM ELEMENT REFERENCES
+// =============================================================================
+
+const elements = {
+    // Editor elements
+    inputText: document.querySelector('#input'),
+    mirrorHighlight: document.querySelector('#text-highlight'),
+    lineNumbers: document.querySelector('#line-numbers'),
+    editorArea: document.querySelector('#editor-area'),
+    markdown: document.querySelector('#markdown'),
+
+    // Preview elements
+    outputText: document.querySelector('#preview-content'),
+    previewPane: document.querySelector('#preview-pane'),
+    preview: document.querySelector('#preview'),
+
+    // ToC elements
+    tocToggle: document.querySelector('#toc-toggle'),
+    tocPanel: document.querySelector('#toc-panel'),
+    tocClose: document.querySelector('#toc-close'),
+    tocContent: document.querySelector('#toc-content'),
+    collapseAllToggle: document.querySelector('#collapse-all-toggle'),
+
+    // Toolbar elements
+    copyButton: document.querySelector('#copy-markdown-btn'),
+    clearButton: document.querySelector('#clear-markdown-btn'),
+    resetButton: document.querySelector('#reset-markdown-btn'),
+    downloadButton: document.querySelector('#download-markdown-btn'),
+
+    // Stats elements
+    wordCountEl: document.querySelector('#word-count'),
+    charCountEl: document.querySelector('#char-count'),
+    readTimeEl: document.querySelector('#read-time'),
+
+    // Settings elements
+    settingsToggle: document.querySelector('#settings-toggle'),
+    settingsDropdown: document.querySelector('#settings-dropdown'),
+    themeSelect: document.querySelector('#theme-select'),
+    fontSelect: document.querySelector('#font-select'),
+    syncCheckbox: document.querySelector('#sync-scroll'),
+
+    // View elements
+    viewSwitch: document.querySelector('#view-switch'),
+    resizeHandle: document.querySelector('#resize-handle')
+};
+
+// View buttons
+const viewButtons = elements.viewSwitch
+    ? Array.from(elements.viewSwitch.querySelectorAll('button[data-view]'))
+    : [];
+
+// =============================================================================
+// STATE
+// =============================================================================
+
+const scrollFlags = createScrollFlags();
 let refreshRaf = null;
-let userResized = false;
 
+// =============================================================================
+// CORE FUNCTIONS
+// =============================================================================
 
-document.body.classList.add(`view-${defaultView}`);
-
-
-function highlightLine(line) {
-    const div = document.createElement('div');
-    div.className = 'mirror-line';
-
-    // Tom rad
-    if (!line) {
-        div.innerHTML = '&nbsp;';
-        return div;
-    }
-
-    // Skapa en wrapper span med rätt klass baserat på radtyp
-    let wrapperClass = '';
-
-    if (/^```/.test(line)) {
-        wrapperClass = 'mirrorline-code';
-    } else if (/^#{1,6}\s/.test(line)) {
-        wrapperClass = 'mirrorline-heading';
-    } else if (/^\s*[-*+]\s+\[[ xX]\]\s+/.test(line)) {
-        wrapperClass = 'mirrorline-checklist';
-    } else if (/^\s*([-*+]|\d+\.)\s+/.test(line)) {
-        wrapperClass = 'mirrorline-list';
-    } else if (/^>\s*/.test(line)) {
-        wrapperClass = 'mirrorline-quote';
-    } else if (/^\[\^[^\]]+\]:/.test(line)) {
-        wrapperClass = 'mirrorline-footnote';
-    }
-
-    // Highlight inline elements (länkar, bold, italic)
-    const parts = [];
-    let i = 0;
-    let currentText = '';
-
-    while (i < line.length) {
-        // Länkar: [text](url)
-        const linkMatch = line.slice(i).match(/^\[([^\]]+)\]\(([^)]+)\)/);
-        if (linkMatch) {
-            if (currentText) {
-                parts.push({ type: 'text', value: currentText });
-                currentText = '';
-            }
-            parts.push({ type: 'link', value: linkMatch[0] });
-            i += linkMatch[0].length;
-            continue;
-        }
-
-        // Bold: **text** eller __text__
-        const boldMatch = line.slice(i).match(/^(\*\*|__)([^*_]+?)\1/);
-        if (boldMatch) {
-            if (currentText) {
-                parts.push({ type: 'text', value: currentText });
-                currentText = '';
-            }
-            parts.push({ type: 'bold', value: boldMatch[0] });
-            i += boldMatch[0].length;
-            continue;
-        }
-
-        // Italic: *text* (men inte **)
-        if (line[i] === '*' && line[i+1] !== '*') {
-            const italicMatch = line.slice(i).match(/^\*([^*]+)\*/);
-            if (italicMatch) {
-                if (currentText) {
-                    parts.push({ type: 'text', value: currentText });
-                    currentText = '';
-                }
-                parts.push({ type: 'italic', value: italicMatch[0] });
-                i += italicMatch[0].length;
-                continue;
-            }
-        }
-
-        // Italic: _text_ (men inte __)
-        if (line[i] === '_' && line[i+1] !== '_' && (i === 0 || line[i-1] !== '_')) {
-            const italicMatch = line.slice(i).match(/^_([^_]+)_/);
-            if (italicMatch) {
-                if (currentText) {
-                    parts.push({ type: 'text', value: currentText });
-                    currentText = '';
-                }
-                parts.push({ type: 'italic', value: italicMatch[0] });
-                i += italicMatch[0].length;
-                continue;
-            }
-        }
-
-        currentText += line[i];
-        i++;
-    }
-
-    if (currentText) {
-        parts.push({ type: 'text', value: currentText });
-    }
-
-    // Bygg DOM-strukturen
-    if (wrapperClass) {
-        const wrapper = document.createElement('span');
-        wrapper.className = wrapperClass;
-
-        parts.forEach(part => {
-            if (part.type === 'link') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-link';
-                span.textContent = part.value;
-                wrapper.appendChild(span);
-            } else if (part.type === 'bold') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-bold';
-                span.textContent = part.value;
-                wrapper.appendChild(span);
-            } else if (part.type === 'italic') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-italic';
-                span.textContent = part.value;
-                wrapper.appendChild(span);
-            } else {
-                const textNode = document.createTextNode(part.value);
-                wrapper.appendChild(textNode);
-            }
-        });
-
-        div.appendChild(wrapper);
-    } else {
-        // Ingen wrapper, bara inline highlighting
-        parts.forEach(part => {
-            if (part.type === 'link') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-link';
-                span.textContent = part.value;
-                div.appendChild(span);
-            } else if (part.type === 'bold') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-bold';
-                span.textContent = part.value;
-                div.appendChild(span);
-            } else if (part.type === 'italic') {
-                const span = document.createElement('span');
-                span.className = 'mirrorline-italic';
-                span.textContent = part.value;
-                div.appendChild(span);
-            } else {
-                const textNode = document.createTextNode(part.value);
-                div.appendChild(textNode);
-            }
-        });
-    }
-
-    return div;
-}
-
+/**
+ * Parses markdown text and returns HTML.
+ *
+ * @param {string} text - The markdown text to parse
+ * @returns {string} The rendered HTML
+ */
 function parseMarkdown(text) {
     if (!text.trim()) return '';
 
@@ -210,747 +127,178 @@ function parseMarkdown(text) {
     }
 }
 
-function syncScroll(from, to, fromFlag, toFlag) {
-    if (!syncCheckbox.checked) return;
-    if (toFlag.value) return;
-
-    fromFlag.value = true;
-
-    const fromScrollHeight = from.scrollHeight - from.clientHeight;
-    const toScrollHeight = to.scrollHeight - to.clientHeight;
-
-    const ratio = fromScrollHeight > 0
-        ? from.scrollTop / fromScrollHeight
-        : 0;
-
-    to.scrollTop = ratio * toScrollHeight;
-
-    requestAnimationFrame(() => {
-        fromFlag.value = false;
-    });
-}
-
-function updateStats() {
-    const text = inputText.value;
-
-    // Character count (including spaces)
-    const charCount = text.length;
-
-    // Word count (split by whitespace and filter out empty strings)
-    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-    const wordCount = text.trim().length === 0 ? 0 : words.length;
-
-    // Reading time calculation (average reading speed: 200 words per minute)
-    const readingTimeMinutes = Math.ceil(wordCount / 200);
-    const readTimeText = readingTimeMinutes === 0 ? '~0 min read' :
-                         readingTimeMinutes === 1 ? '~1 min read' :
-                         `~${readingTimeMinutes} min read`;
-
-    // Update UI
-    if (wordCountEl) {
-        wordCountEl.textContent = wordCount === 1 ? '1 word' : `${wordCount} words`;
-    }
-
-    if (charCountEl) {
-        charCountEl.textContent = charCount === 1 ? '1 char' : `${charCount} chars`;
-    }
-
-    if (readTimeEl) {
-        readTimeEl.textContent = readTimeText;
-    }
-}
-
-function generateTableOfContents() {
-    if (!tocContent || !outputText) return;
-
-    // Find all headings in the preview
-    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
-
-    if (headings.length === 0) {
-        tocContent.innerHTML = '';
-        return;
-    }
-
-    // Generate unique IDs for headings if they don't have one
-    headings.forEach((heading, index) => {
-        if (!heading.id) {
-            const text = heading.textContent.trim();
-            heading.id = `heading-${text.toLowerCase().replace(/[^\w]+/g, '-')}-${index}`;
-        }
-    });
-
-    // Build the ToC HTML
-    const tocItems = Array.from(headings).map((heading) => {
-        const level = heading.tagName.toLowerCase();
-        const text = heading.textContent.trim();
-        const id = heading.id;
-
-        return `<li><a href="#${id}" class="toc-${level}" data-target="${id}">${text}</a></li>`;
-    }).join('');
-
-    tocContent.innerHTML = `<ul>${tocItems}</ul>`;
-
-    // Add click handlers for smooth scrolling
-    tocContent.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('data-target');
-            const targetElement = document.getElementById(targetId);
-
-            if (targetElement) {
-                // Smooth scroll to the heading
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                // Update active state
-                tocContent.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-                link.classList.add('active');
-
-                // Close ToC on mobile after clicking
-                if (window.innerWidth <= 500 && tocPanel) {
-                    tocPanel.classList.add('hidden');
-                }
-            }
-        });
-    });
-}
-
-function updateActiveToC() {
-    if (!tocContent || !previewPane) return;
-
-    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    if (headings.length === 0) return;
-
-    // Find which heading is currently in view
-    const scrollPosition = previewPane.scrollTop + 100; // Offset for better UX
-
-    let activeHeading = null;
-    headings.forEach((heading) => {
-        const rect = heading.getBoundingClientRect();
-        const headingTop = rect.top + previewPane.scrollTop;
-
-        if (headingTop <= scrollPosition) {
-            activeHeading = heading;
-        }
-    });
-
-    // Update active state in ToC
-    if (activeHeading) {
-        tocContent.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-        const activeLink = tocContent.querySelector(`a[data-target="${activeHeading.id}"]`);
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
-    }
-}
-
-function makeHeadingsCollapsible() {
-    if (!outputText) return;
-
-    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    if (headings.length === 0) return;
-
-    // First, restore any previously collapsed state
-    const collapsedSections = new Set();
-    outputText.querySelectorAll('.collapsible-section.collapsed').forEach(section => {
-        const heading = section.querySelector('h1, h2, h3, h4, h5, h6');
-        if (heading) {
-            const headingText = heading.textContent.trim();
-            collapsedSections.add(headingText);
-        }
-    });
-
-    headings.forEach((heading, index) => {
-        // Skip if already wrapped
-        if (heading.classList.contains('collapsible-heading')) return;
-
-        const level = parseInt(heading.tagName.substring(1));
-        const headingText = heading.textContent.trim();
-
-        // Create wrapper
-        const wrapper = document.createElement('div');
-        wrapper.className = 'collapsible-section';
-        wrapper.setAttribute('data-level', level);
-
-        // Restore collapsed state if it was previously collapsed
-        if (collapsedSections.has(headingText)) {
-            wrapper.classList.add('collapsed');
-        }
-
-        // Insert wrapper before heading
-        heading.parentNode.insertBefore(wrapper, heading);
-
-        // Add collapsible class to heading
-        heading.classList.add('collapsible-heading');
-
-        // Create toggle button
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'collapse-toggle';
-        toggleBtn.type = 'button';
-        toggleBtn.setAttribute('aria-label', 'Toggle section');
-        toggleBtn.innerHTML = `
-            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
-                <path d="M7 10l5 5 5-5z" fill="currentColor"/>
-            </svg>
-        `;
-
-        // Wrap heading content
-        const headingContent = document.createElement('span');
-        headingContent.className = 'heading-content';
-        headingContent.innerHTML = heading.innerHTML;
-        heading.innerHTML = '';
-        heading.appendChild(toggleBtn);
-        heading.appendChild(headingContent);
-
-        // Move heading into wrapper
-        wrapper.appendChild(heading);
-
-        // Create collapsible content container
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'collapsible-content';
-
-        // Collect content until next heading of same or higher level
-        let nextElement = wrapper.nextElementSibling;
-        while (nextElement) {
-            if (nextElement.matches('h1, h2, h3, h4, h5, h6')) {
-                const nextLevel = parseInt(nextElement.tagName.substring(1));
-                if (nextLevel <= level) break;
-            }
-
-            const elementToMove = nextElement;
-            nextElement = nextElement.nextElementSibling;
-            contentDiv.appendChild(elementToMove);
-        }
-
-        wrapper.appendChild(contentDiv);
-
-        // Add click handler
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            wrapper.classList.toggle('collapsed');
-            updateCollapseAllIcon();
-        });
-
-        // Make heading clickable too
-        heading.addEventListener('click', (e) => {
-            if (e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
-                wrapper.classList.toggle('collapsed');
-                updateCollapseAllIcon();
-            }
-        });
-    });
-
-    // Update collapse-all icon after setting up all sections
-    updateCollapseAllIcon();
-}
-
-function updateViewIcons(activeMode) {
-    if (!viewButtons.length) return;
-    viewButtons.forEach((btn) => {
-        const mode = btn.getAttribute('data-view');
-        const iconBase = btn.getAttribute('data-icon');
-        const img = btn.querySelector('svg');
-        if (!img || !iconBase) return;
-
-        const isActive = mode === activeMode;
-        const fileName = isActive
-            ? `${iconBase}(select).svg`
-            : `${iconBase}.svg`;
-        img.src = `./icons/${fileName}`;
-    });
-}
-
+/**
+ * Refreshes the editor layout with debouncing.
+ */
 function refreshLayout() {
     if (refreshRaf) cancelAnimationFrame(refreshRaf);
     refreshRaf = requestAnimationFrame(() => {
         try {
-            resizeTextarea();
-            updateLineNumbers();
+            resizeTextarea(elements.inputText, elements.mirrorHighlight);
+            updateLineNumbers(elements.inputText, elements.mirrorHighlight, elements.lineNumbers);
         } finally {
             refreshRaf = null;
         }
     });
 }
 
-function setViewMode(mode) {
-    document.body.classList.remove('view-markdown', 'view-both', 'view-preview');
-    document.body.classList.add(`view-${mode}`);
-    localStorage.setItem('viewMode', mode);
-    updateViewIcons(mode);
-
-    if (mode === 'both') {
-        if (!userResized) {
-            markdown.style.width = '';
-            preview.style.width = '';
-            markdown.style.flex = '1 1 0';
-            preview.style.flex = '1 1 0';
-        } else {
-            markdown.style.flex = '0 0 auto';
-            preview.style.flex = '0 0 auto';
-        }
-    } else if (mode === 'markdown') {
-        markdown.style.width = '';
-        markdown.style.flex = '1 1 0';
-
-        preview.style.width = '';
-        preview.style.flex = '';
-    } else if (mode === 'preview') {
-        preview.style.width = '';
-        preview.style.flex = '1 1 0';
-
-        markdown.style.width = '';
-        markdown.style.flex = '';
-    }
-
-    // allow the DOM to settle then refresh layout (rAF already debounced inside)
-    setTimeout(refreshLayout, 0);
-    resizeTextarea();
-    updateLineNumbers();
-}
-
-function updateLineNumbers() {
-    const textarea = inputText;
-    const linesArray = textarea.value.split('\n');
-    const lineCount = linesArray.length;
-
-    const lineNumbers = document.querySelector('#line-numbers');
-
-    // Clear and rebuild mirror highlight with DOM elements
-    mirrorHighlight.innerHTML = '';
-    linesArray.forEach(line => {
-        const lineElement = highlightLine(line);
-        mirrorHighlight.appendChild(lineElement);
-    });
-
-    const cursorPosition = textarea.selectionStart;
-    const textBeforeCursor = textarea.value.substring(0, cursorPosition);
-    const currentLine = textBeforeCursor.split('\n').length;
-
-    const mirrorLines = mirrorHighlight.querySelectorAll('.mirror-line');
-
-    mirrorLines.forEach((line, i) => {
-        if (i + 1 === currentLine) {
-            line.classList.add('active-mirror-line');
-        }
-    });
-
-    lineNumbers.innerHTML = Array.from({length: lineCount}, (_, i) => {
-        const lineNum = i + 1;
-        const isActive = lineNum === currentLine
-            ? ' class="active-line"'
-            : '';
-        const lineHeight = mirrorLines[i] ? mirrorLines[i].offsetHeight : 24;
-        return `<div${isActive} style="height: ${lineHeight}px; display: flex; align-items: flex-start;">${lineNum}</div>`;
-    }).join('');
-}
-
-function resizeTextarea() {
-    inputText.style.height = 'auto';
-    inputText.style.height = inputText.scrollHeight + 'px';
-    mirrorHighlight.style.height = inputText.style.height;
-
-}
-
-function loadFromLocalStorage() {
-    const savedText = localStorage.getItem('markdownText');
-    if (savedText !== null) {
-        inputText.value = savedText;
-    }
-}
-
-function saveToLocalStorage() {
-    localStorage.setItem('markdownText', inputText.value);
-}
-
-async function copyMarkdownToClipboard() {
-    if (!inputText) return;
-
-    const text = inputText.value || '';
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        try {
-            await navigator.clipboard.writeText(text);
-            console.info('Markdown copied to clipboard');
-        } catch (err) {
-            console.warn('navigator.clipboard.writeText failed, falling back to execCommand', err);
-        }
-    }
-}
-
-if (viewSwitch) {
-    viewSwitch.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-view]');
-        if (!btn) return;
-        const mode = btn.getAttribute('data-view');
-        setViewMode(mode);
-    });
-}
-
-if (settingsToggle && settingsDropdown) {
-    document.body.appendChild(settingsDropdown);
-    settingsDropdown.style.position = 'absolute';
-    settingsDropdown.style.minWidth = '200px';
-
-    const positionDropdown = () => {
-        const btnRect = settingsToggle.getBoundingClientRect();
-        const top = window.scrollY + btnRect.bottom + 8;
-        const right = window.innerWidth - (window.scrollX + btnRect.right);
-        settingsDropdown.style.top = `${top}px`;
-        settingsDropdown.style.right = `${right}px`;
-    };
-
-    settingsToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        settingsDropdown.classList.toggle('hidden');
-        if (!settingsDropdown.classList.contains('hidden')) {
-            positionDropdown();
-        }
-    });
-
-    window.addEventListener('resize', () => {
-        if (!settingsDropdown.classList.contains('hidden')) positionDropdown();
-    });
-    window.addEventListener('scroll', () => {
-        if (!settingsDropdown.classList.contains('hidden')) positionDropdown();
-    }, true);
-
-    document.addEventListener('click', (e) => {
-        if (settingsDropdown.classList.contains('hidden')) return;
-        if (!settingsDropdown.contains(e.target) && e.target !== settingsToggle) {
-            settingsDropdown.classList.add('hidden');
-        }
-    });
-}
-
-if (resizeHandle) {
-    resizeHandle.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        isResizing = true;
-        userResized = true;
-        document.body.style.userSelect = 'none';
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (!isResizing) return;
-
-        const mainRect = document.querySelector('main').getBoundingClientRect();
-        const minWidth = 150;
-
-        let newMarkdownWidth = e.clientX - mainRect.left;
-        let newPreviewWidth = mainRect.right - e.clientX;
-
-        if (newMarkdownWidth < minWidth || newPreviewWidth < minWidth) return;
-
-        markdown.style.flex = '0 0 auto';
-        preview.style.flex = '0 0 auto';
-
-        markdown.style.width = newMarkdownWidth + 'px';
-        preview.style.width = newPreviewWidth + 'px';
-
-        refreshLayout();
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (!isResizing) return;
-        isResizing = false;
-        document.body.style.userSelect = '';
-        refreshLayout();
-    });
-
-    resizeHandle.addEventListener('dblclick', (e) => {
-        e.preventDefault();
-
-        markdown.style.width = '';
-        preview.style.width = '';
-
-        markdown.style.flex = '1 1 0';
-        preview.style.flex = '1 1 0';
-
-        userResized = false;
-        refreshLayout();
-    });
-
-}
-
-
-if (clearButton) {
-    clearButton.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        if (!inputText.value.trim()) return;
-
-        const confirmed = window.confirm('Är du säker på att du vill rensa din markdowntext?');
-        if (!confirmed) return;
-
-        inputText.value = '';
-        outputText.innerHTML = '';
-        mirrorHighlight.innerHTML = '';
-        updateLineNumbers();
-        resizeTextarea();
-        saveToLocalStorage();
-        updateClearButtonState();
-        updateStats();
-        makeHeadingsCollapsible();
-        generateTableOfContents();
-    });
-}
-
-if (resetButton) {
-    resetButton.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        inputText.value = markdownGuideTemplate;
-        outputText.innerHTML = parseMarkdown(inputText.value);
-        makeHeadingsCollapsible();
-        updateLineNumbers();
-        resizeTextarea();
-        saveToLocalStorage();
-        updateClearButtonState();
-        updateStats();
-        generateTableOfContents();
-    });
-}
-
-if (downloadButton) {
-    downloadButton.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        const content = inputText.value;
-        const blob = new Blob([content], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'document.md';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        URL.revokeObjectURL(url);
-    });
-}
-
-
-const savedTheme = localStorage.getItem('editorTheme') || '';
-if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeSelect.value = savedTheme;
-}
-
-const savedFont = localStorage.getItem('previewFont') || 'inherit';
-document.documentElement.style.setProperty('--preview-font-family', savedFont);
-if (fontSelect) {
-    fontSelect.value = savedFont;
-}
-
-themeSelect.addEventListener('change', (e) => {
-    const value = e.target.value;
-
-    if (value) {
-        document.documentElement.setAttribute('data-theme', value);
-        localStorage.setItem('editorTheme', value);
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.removeItem('editorTheme');
-    }
-});
-
-fontSelect.addEventListener('change', (e) => {
-    const value = e.target.value || 'inherit';
-    document.documentElement.style.setProperty('--preview-font-family', value);
-    localStorage.setItem('previewFont', value);
-});
-
-// Sync scroll preference
-const savedSyncScroll = localStorage.getItem('syncScroll');
-if (savedSyncScroll !== null) {
-    syncCheckbox.checked = savedSyncScroll === 'true';
-}
-
-syncCheckbox.addEventListener('change', () => {
-    localStorage.setItem('syncScroll', syncCheckbox.checked);
-});
-
-
-inputText.addEventListener('input', () => {
-    updateLineNumbers();
-    resizeTextarea();
-    outputText.innerHTML = parseMarkdown(inputText.value);
-    makeHeadingsCollapsible();
-    saveToLocalStorage();
-    updateClearButtonState();
-    updateStats();
-    generateTableOfContents();
-});
-
-
-editorArea.addEventListener('scroll', () => {
-    syncScroll(
-        editorArea,
-        previewPane,
-        isSyncingFromMarkdown,
-        isSyncingFromPreview
+/**
+ * Updates all UI components after content change.
+ */
+function updateAllUI() {
+    updateLineNumbers(elements.inputText, elements.mirrorHighlight, elements.lineNumbers);
+    resizeTextarea(elements.inputText, elements.mirrorHighlight);
+    elements.outputText.innerHTML = parseMarkdown(elements.inputText.value);
+    makeHeadingsCollapsible(elements.outputText, () =>
+        updateCollapseAllIcon(elements.outputText, elements.collapseAllToggle)
     );
-});
-
-previewPane.addEventListener('scroll', () => {
-    syncScroll(
-        previewPane,
-        editorArea,
-        isSyncingFromPreview,
-        isSyncingFromMarkdown
-    );
-    updateActiveToC();
-});
-
-// ToC toggle functionality
-if (tocToggle && tocPanel) {
-    tocToggle.addEventListener('click', () => {
-        tocPanel.classList.toggle('hidden');
-    });
+    saveMarkdownText(elements.inputText.value);
+    updateClearButtonState(elements.clearButton, elements.inputText);
+    updateStatsDisplay(elements.inputText.value, elements.wordCountEl, elements.charCountEl, elements.readTimeEl);
+    generateTableOfContents(elements.outputText, elements.tocContent, elements.tocPanel);
 }
 
-if (tocClose && tocPanel) {
-    tocClose.addEventListener('click', () => {
-        tocPanel.classList.add('hidden');
-    });
-}
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
 
-// Close ToC when clicking outside
-document.addEventListener('click', (e) => {
-    if (tocPanel && !tocPanel.classList.contains('hidden')) {
-        if (!tocPanel.contains(e.target) && !tocToggle.contains(e.target)) {
-            tocPanel.classList.add('hidden');
-        }
-    }
-});
+/**
+ * Initializes all UI components and event listeners.
+ */
+function initializeApp() {
+    const defaultView = loadViewMode();
 
-// Function to update collapse-all button icon
-function updateCollapseAllIcon() {
-    if (!collapseAllToggle || !outputText) return;
+    // Set initial view mode
+    document.body.classList.add(`view-${defaultView}`);
 
-    const sections = outputText.querySelectorAll('.collapsible-section');
-    if (sections.length === 0) return;
-
-    const allCollapsed = Array.from(sections).every(section =>
-        section.classList.contains('collapsed')
+    // Setup resize handle and get state
+    const resizeState = setupResizeHandle(
+        elements.resizeHandle,
+        elements.markdown,
+        elements.preview,
+        refreshLayout
     );
 
-    const collapseIcon = collapseAllToggle.querySelector('.collapse-icon');
-    const expandIcon = collapseAllToggle.querySelector('.expand-icon');
+    // Setup view mode switching
+    setupViewSwitch(
+        elements.viewSwitch,
+        elements.markdown,
+        elements.preview,
+        resizeState.userResized,
+        refreshLayout,
+        viewButtons
+    );
 
-    if (allCollapsed) {
-        // Show expand icon (arrows pointing outward)
-        if (collapseIcon) collapseIcon.classList.add('hidden');
-        if (expandIcon) expandIcon.classList.remove('hidden');
-        collapseAllToggle.title = 'Expand All Sections';
-    } else {
-        // Show collapse icon (arrows pointing inward)
-        if (collapseIcon) collapseIcon.classList.remove('hidden');
-        if (expandIcon) expandIcon.classList.add('hidden');
-        collapseAllToggle.title = 'Collapse All Sections';
-    }
-}
+    // Setup settings
+    setupSettingsDropdown(elements.settingsToggle, elements.settingsDropdown);
+    setupThemeSelect(elements.themeSelect);
+    setupFontSelect(elements.fontSelect);
+    const isSyncEnabled = setupSyncScrollCheckbox(elements.syncCheckbox);
 
-// Collapse All / Expand All functionality
-if (collapseAllToggle) {
-    collapseAllToggle.addEventListener('click', () => {
-        if (!outputText) return;
+    // Setup toolbar buttons
+    setupCopyButton(elements.copyButton, elements.inputText);
+    setupClearButton(
+        elements.clearButton,
+        elements.inputText,
+        elements.outputText,
+        elements.mirrorHighlight,
+        updateAllUI
+    );
+    setupResetButton(
+        elements.resetButton,
+        elements.inputText,
+        markdownGuideTemplate,
+        parseMarkdown,
+        elements.outputText,
+        updateAllUI
+    );
+    setupDownloadButton(elements.downloadButton, elements.inputText);
 
-        const sections = outputText.querySelectorAll('.collapsible-section');
-        if (sections.length === 0) return;
+    // Setup ToC
+    setupToCToggle(elements.tocToggle, elements.tocPanel, elements.tocClose);
 
-        // Check if all are collapsed or not
-        const allCollapsed = Array.from(sections).every(section =>
-            section.classList.contains('collapsed')
+    // Setup collapsible sections
+    setupCollapseAllToggle(elements.collapseAllToggle, elements.outputText);
+
+    // Setup code copy buttons in preview
+    setupCodeCopyButtons(elements.previewPane);
+
+    // =============================================================================
+    // EVENT LISTENERS
+    // =============================================================================
+
+    // Main input handler
+    elements.inputText.addEventListener('input', updateAllUI);
+
+    // Scroll sync
+    elements.editorArea.addEventListener('scroll', () => {
+        syncScroll(
+            elements.editorArea,
+            elements.previewPane,
+            scrollFlags.markdown,
+            scrollFlags.preview,
+            isSyncEnabled()
         );
-
-        // Toggle all sections
-        sections.forEach(section => {
-            if (allCollapsed) {
-                section.classList.remove('collapsed');
-            } else {
-                section.classList.add('collapsed');
-            }
-        });
-
-        // Update icon after toggling
-        updateCollapseAllIcon();
     });
-}
 
-previewPane.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.code-copy-btn');
-    if (!btn) return;
-
-    const code = btn.getAttribute('data-code')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
-
-    try {
-        await navigator.clipboard.writeText(code);
-        btn.textContent = 'COPIED';
-        setTimeout(() => { btn.textContent = 'COPY'; }, 1000);
-    } catch (err) {
-        console.error('Copy failed', err);
-    }
-});
-
-inputText.tabIndex = 0;
-
-inputText.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-
-        const start = inputText.selectionStart;
-        const end = inputText.selectionEnd;
-        const value = inputText.value;
-        const insert = '    ';
-
-        inputText.value = value.slice(0, start) + insert + value.slice(end);
-
-        const newPos = start + insert.length;
-        inputText.selectionStart = newPos;
-        inputText.selectionEnd = newPos;
-
-        updateLineNumbers();
-        resizeTextarea();
-        outputText.innerHTML = parseMarkdown(inputText.value);
-        saveToLocalStorage();
-        updateClearButtonState();
-    }
-});
-
-
-inputText.addEventListener('click', updateLineNumbers);
-inputText.addEventListener('keyup', updateLineNumbers);
-
-if (copyButton) {
-    copyButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        copyMarkdownToClipboard();
+    elements.previewPane.addEventListener('scroll', () => {
+        syncScroll(
+            elements.previewPane,
+            elements.editorArea,
+            scrollFlags.preview,
+            scrollFlags.markdown,
+            isSyncEnabled()
+        );
+        updateActiveToC(elements.outputText, elements.tocContent, elements.previewPane);
     });
+
+    // Tab key handling
+    elements.inputText.tabIndex = 0;
+    elements.inputText.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const start = elements.inputText.selectionStart;
+            const end = elements.inputText.selectionEnd;
+            const value = elements.inputText.value;
+            const insert = '    ';
+
+            elements.inputText.value = value.slice(0, start) + insert + value.slice(end);
+
+            const newPos = start + insert.length;
+            elements.inputText.selectionStart = newPos;
+            elements.inputText.selectionEnd = newPos;
+
+            updateAllUI();
+        }
+    });
+
+    // Line number updates on click/keyup
+    elements.inputText.addEventListener('click', () =>
+        updateLineNumbers(elements.inputText, elements.mirrorHighlight, elements.lineNumbers)
+    );
+    elements.inputText.addEventListener('keyup', () =>
+        updateLineNumbers(elements.inputText, elements.mirrorHighlight, elements.lineNumbers)
+    );
+
+    // Window resize handler
+    window.addEventListener('resize', refreshLayout);
+
+    // =============================================================================
+    // INITIAL RENDER
+    // =============================================================================
+
+    // Load saved content
+    const savedText = loadMarkdownText();
+    if (savedText !== null) {
+        elements.inputText.value = savedText;
+    }
+
+    // Initial UI update
+    updateAllUI();
+    updateViewIcons(defaultView, viewButtons);
 }
 
-function updateClearButtonState() {
-    if (!clearButton) return;
-    clearButton.disabled = !inputText.value.trim();
-}
-
-window.addEventListener('resize', refreshLayout);
-
-
-
-// Initial rendering
-loadFromLocalStorage();
-resizeTextarea();
-updateLineNumbers();
-outputText.innerHTML = parseMarkdown(inputText.value);
-makeHeadingsCollapsible();
-updateClearButtonState();
-updateStats();
-generateTableOfContents();
-updateViewIcons(defaultView);
+// Start the application
+initializeApp();
