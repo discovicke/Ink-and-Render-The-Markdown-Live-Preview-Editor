@@ -388,8 +388,8 @@ function makeHeadingsCollapsible() {
         toggleBtn.type = 'button';
         toggleBtn.setAttribute('aria-label', 'Toggle section');
         toggleBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            <svg class="collapse-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                <path d="M7 10l5 5 5-5z" fill="currentColor"/>
             </svg>
         `;
 
@@ -427,15 +427,20 @@ function makeHeadingsCollapsible() {
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             wrapper.classList.toggle('collapsed');
+            updateCollapseAllIcon();
         });
 
         // Make heading clickable too
         heading.addEventListener('click', (e) => {
             if (e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
                 wrapper.classList.toggle('collapsed');
+                updateCollapseAllIcon();
             }
         });
     });
+
+    // Update collapse-all icon after setting up all sections
+    updateCollapseAllIcon();
 }
 
 function updateViewIcons(activeMode) {
@@ -819,6 +824,33 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Function to update collapse-all button icon
+function updateCollapseAllIcon() {
+    if (!collapseAllToggle || !outputText) return;
+
+    const sections = outputText.querySelectorAll('.collapsible-section');
+    if (sections.length === 0) return;
+
+    const allCollapsed = Array.from(sections).every(section =>
+        section.classList.contains('collapsed')
+    );
+
+    const collapseIcon = collapseAllToggle.querySelector('.collapse-icon');
+    const expandIcon = collapseAllToggle.querySelector('.expand-icon');
+
+    if (allCollapsed) {
+        // Show expand icon (arrows pointing outward)
+        if (collapseIcon) collapseIcon.classList.add('hidden');
+        if (expandIcon) expandIcon.classList.remove('hidden');
+        collapseAllToggle.title = 'Expand All Sections';
+    } else {
+        // Show collapse icon (arrows pointing inward)
+        if (collapseIcon) collapseIcon.classList.remove('hidden');
+        if (expandIcon) expandIcon.classList.add('hidden');
+        collapseAllToggle.title = 'Collapse All Sections';
+    }
+}
+
 // Collapse All / Expand All functionality
 if (collapseAllToggle) {
     collapseAllToggle.addEventListener('click', () => {
@@ -840,6 +872,9 @@ if (collapseAllToggle) {
                 section.classList.add('collapsed');
             }
         });
+
+        // Update icon after toggling
+        updateCollapseAllIcon();
     });
 }
 
