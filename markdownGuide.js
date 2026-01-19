@@ -69,7 +69,11 @@ Har du ett [favoritlag](https://sv.wikipedia.org/wiki/Anaheim_Ducks) i hockey?
 Markdown är ett fantastiskt format[^1] som gör det enkelt att skriva dokumentation[^2]. 
 Fotnoterna samlas automatiskt längst ner i dokumentet[^3]!
 
-## Kodblock med JavaScript Syntax Highlighting
+[^1]: Det skapades av John Gruber 2004.
+[^2]: Speciellt för README-filer på GitHub.
+
+## Kodblock Syntax Highlighting
+### JavaScript
 
 \`\`\`js
 // En enkel funktion med syntax highlighting
@@ -78,7 +82,7 @@ const greet = async (name) => {
         return "Hello, stranger!";
     }
     
-    const message = \`Hello, \${name}!\`;
+    const message = \`Hello, ${name}!\`;
     console.log(message);
     return message;
 };
@@ -101,7 +105,7 @@ import { Parser } from './AST.js';
 export default greet;
 \`\`\`
 
-## CSS Kodblock
+### CSS
 
 \`\`\`css
 /* CSS example with highlighting */
@@ -118,7 +122,7 @@ export default greet;
 }
 \`\`\`
 
-## HTML Kodblock
+### HTML
 
 \`\`\`html
 <!DOCTYPE html>
@@ -140,6 +144,4 @@ export default greet;
 
 Den här webbsidan har nu stöd för \`syntax highlighting\` i kodblock!
 
-[^1]: Det skapades av John Gruber 2004.
-[^2]: Speciellt för README-filer på GitHub.
 [^3]: Observera att fotnotsdefinitionerna kan skrivas var som helst i dokumentet, men de renderas alltid längst ner.`;
