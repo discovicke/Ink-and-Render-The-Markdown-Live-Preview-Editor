@@ -30,6 +30,7 @@ const tocToggle = document.querySelector('#toc-toggle');
 const tocPanel = document.querySelector('#toc-panel');
 const tocClose = document.querySelector('#toc-close');
 const tocContent = document.querySelector('#toc-content');
+const collapseAllToggle = document.querySelector('#collapse-all-toggle');
 
 let isResizing = false;
 let isSyncingFromMarkdown = { value: false };
@@ -342,6 +343,101 @@ function updateActiveToC() {
     }
 }
 
+function makeHeadingsCollapsible() {
+    if (!outputText) return;
+
+    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings.length === 0) return;
+
+    // First, restore any previously collapsed state
+    const collapsedSections = new Set();
+    outputText.querySelectorAll('.collapsible-section.collapsed').forEach(section => {
+        const heading = section.querySelector('h1, h2, h3, h4, h5, h6');
+        if (heading) {
+            const headingText = heading.textContent.trim();
+            collapsedSections.add(headingText);
+        }
+    });
+
+    headings.forEach((heading, index) => {
+        // Skip if already wrapped
+        if (heading.classList.contains('collapsible-heading')) return;
+
+        const level = parseInt(heading.tagName.substring(1));
+        const headingText = heading.textContent.trim();
+
+        // Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'collapsible-section';
+        wrapper.setAttribute('data-level', level);
+
+        // Restore collapsed state if it was previously collapsed
+        if (collapsedSections.has(headingText)) {
+            wrapper.classList.add('collapsed');
+        }
+
+        // Insert wrapper before heading
+        heading.parentNode.insertBefore(wrapper, heading);
+
+        // Add collapsible class to heading
+        heading.classList.add('collapsible-heading');
+
+        // Create toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'collapse-toggle';
+        toggleBtn.type = 'button';
+        toggleBtn.setAttribute('aria-label', 'Toggle section');
+        toggleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+        `;
+
+        // Wrap heading content
+        const headingContent = document.createElement('span');
+        headingContent.className = 'heading-content';
+        headingContent.innerHTML = heading.innerHTML;
+        heading.innerHTML = '';
+        heading.appendChild(toggleBtn);
+        heading.appendChild(headingContent);
+
+        // Move heading into wrapper
+        wrapper.appendChild(heading);
+
+        // Create collapsible content container
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'collapsible-content';
+
+        // Collect content until next heading of same or higher level
+        let nextElement = wrapper.nextElementSibling;
+        while (nextElement) {
+            if (nextElement.matches('h1, h2, h3, h4, h5, h6')) {
+                const nextLevel = parseInt(nextElement.tagName.substring(1));
+                if (nextLevel <= level) break;
+            }
+
+            const elementToMove = nextElement;
+            nextElement = nextElement.nextElementSibling;
+            contentDiv.appendChild(elementToMove);
+        }
+
+        wrapper.appendChild(contentDiv);
+
+        // Add click handler
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            wrapper.classList.toggle('collapsed');
+        });
+
+        // Make heading clickable too
+        heading.addEventListener('click', (e) => {
+            if (e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
+                wrapper.classList.toggle('collapsed');
+            }
+        });
+    });
+}
+
 function updateViewIcons(activeMode) {
     if (!viewButtons.length) return;
     viewButtons.forEach((btn) => {
@@ -588,6 +684,7 @@ if (clearButton) {
         saveToLocalStorage();
         updateClearButtonState();
         updateStats();
+        makeHeadingsCollapsible();
         generateTableOfContents();
     });
 }
@@ -598,6 +695,7 @@ if (resetButton) {
 
         inputText.value = markdownGuideTemplate;
         outputText.innerHTML = parseMarkdown(inputText.value);
+        makeHeadingsCollapsible();
         updateLineNumbers();
         resizeTextarea();
         saveToLocalStorage();
@@ -672,6 +770,7 @@ inputText.addEventListener('input', () => {
     updateLineNumbers();
     resizeTextarea();
     outputText.innerHTML = parseMarkdown(inputText.value);
+    makeHeadingsCollapsible();
     saveToLocalStorage();
     updateClearButtonState();
     updateStats();
@@ -719,6 +818,30 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+// Collapse All / Expand All functionality
+if (collapseAllToggle) {
+    collapseAllToggle.addEventListener('click', () => {
+        if (!outputText) return;
+
+        const sections = outputText.querySelectorAll('.collapsible-section');
+        if (sections.length === 0) return;
+
+        // Check if all are collapsed or not
+        const allCollapsed = Array.from(sections).every(section =>
+            section.classList.contains('collapsed')
+        );
+
+        // Toggle all sections
+        sections.forEach(section => {
+            if (allCollapsed) {
+                section.classList.remove('collapsed');
+            } else {
+                section.classList.add('collapsed');
+            }
+        });
+    });
+}
 
 previewPane.addEventListener('click', async (e) => {
     const btn = e.target.closest('.code-copy-btn');
@@ -791,6 +914,7 @@ loadFromLocalStorage();
 resizeTextarea();
 updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
+makeHeadingsCollapsible();
 updateClearButtonState();
 updateStats();
 generateTableOfContents();
