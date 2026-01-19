@@ -26,6 +26,10 @@ const settingsDropdown = document.querySelector('#settings-dropdown');
 const wordCountEl = document.querySelector('#word-count');
 const charCountEl = document.querySelector('#char-count');
 const readTimeEl = document.querySelector('#read-time');
+const tocToggle = document.querySelector('#toc-toggle');
+const tocPanel = document.querySelector('#toc-panel');
+const tocClose = document.querySelector('#toc-close');
+const tocContent = document.querySelector('#toc-content');
 
 let isResizing = false;
 let isSyncingFromMarkdown = { value: false };
@@ -252,6 +256,89 @@ function updateStats() {
 
     if (readTimeEl) {
         readTimeEl.textContent = readTimeText;
+    }
+}
+
+function generateTableOfContents() {
+    if (!tocContent || !outputText) return;
+
+    // Find all headings in the preview
+    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+    if (headings.length === 0) {
+        tocContent.innerHTML = '';
+        return;
+    }
+
+    // Generate unique IDs for headings if they don't have one
+    headings.forEach((heading, index) => {
+        if (!heading.id) {
+            const text = heading.textContent.trim();
+            heading.id = `heading-${text.toLowerCase().replace(/[^\w]+/g, '-')}-${index}`;
+        }
+    });
+
+    // Build the ToC HTML
+    const tocItems = Array.from(headings).map((heading) => {
+        const level = heading.tagName.toLowerCase();
+        const text = heading.textContent.trim();
+        const id = heading.id;
+
+        return `<li><a href="#${id}" class="toc-${level}" data-target="${id}">${text}</a></li>`;
+    }).join('');
+
+    tocContent.innerHTML = `<ul>${tocItems}</ul>`;
+
+    // Add click handlers for smooth scrolling
+    tocContent.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                // Smooth scroll to the heading
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Update active state
+                tocContent.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+
+                // Close ToC on mobile after clicking
+                if (window.innerWidth <= 500 && tocPanel) {
+                    tocPanel.classList.add('hidden');
+                }
+            }
+        });
+    });
+}
+
+function updateActiveToC() {
+    if (!tocContent || !previewPane) return;
+
+    const headings = outputText.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings.length === 0) return;
+
+    // Find which heading is currently in view
+    const scrollPosition = previewPane.scrollTop + 100; // Offset for better UX
+
+    let activeHeading = null;
+    headings.forEach((heading) => {
+        const rect = heading.getBoundingClientRect();
+        const headingTop = rect.top + previewPane.scrollTop;
+
+        if (headingTop <= scrollPosition) {
+            activeHeading = heading;
+        }
+    });
+
+    // Update active state in ToC
+    if (activeHeading) {
+        tocContent.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+        const activeLink = tocContent.querySelector(`a[data-target="${activeHeading.id}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
     }
 }
 
@@ -501,6 +588,7 @@ if (clearButton) {
         saveToLocalStorage();
         updateClearButtonState();
         updateStats();
+        generateTableOfContents();
     });
 }
 
@@ -515,6 +603,7 @@ if (resetButton) {
         saveToLocalStorage();
         updateClearButtonState();
         updateStats();
+        generateTableOfContents();
     });
 }
 
@@ -586,6 +675,7 @@ inputText.addEventListener('input', () => {
     saveToLocalStorage();
     updateClearButtonState();
     updateStats();
+    generateTableOfContents();
 });
 
 
@@ -605,6 +695,29 @@ previewPane.addEventListener('scroll', () => {
         isSyncingFromPreview,
         isSyncingFromMarkdown
     );
+    updateActiveToC();
+});
+
+// ToC toggle functionality
+if (tocToggle && tocPanel) {
+    tocToggle.addEventListener('click', () => {
+        tocPanel.classList.toggle('hidden');
+    });
+}
+
+if (tocClose && tocPanel) {
+    tocClose.addEventListener('click', () => {
+        tocPanel.classList.add('hidden');
+    });
+}
+
+// Close ToC when clicking outside
+document.addEventListener('click', (e) => {
+    if (tocPanel && !tocPanel.classList.contains('hidden')) {
+        if (!tocPanel.contains(e.target) && !tocToggle.contains(e.target)) {
+            tocPanel.classList.add('hidden');
+        }
+    }
 });
 
 previewPane.addEventListener('click', async (e) => {
@@ -680,4 +793,5 @@ updateLineNumbers();
 outputText.innerHTML = parseMarkdown(inputText.value);
 updateClearButtonState();
 updateStats();
+generateTableOfContents();
 updateViewIcons(defaultView);
