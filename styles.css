@@ -310,9 +310,9 @@ html {
 }
 
 [data-theme="fintech"] {
-    --bg-body: #050505;
-    --bg-header: rgba(5, 5, 5, 0.4);
-    --bg-editor: #181818;
+    --bg-body: #090909;
+    --bg-header: #050505;
+    --bg-editor: #090909;
     --bg-preview: #000000;
     --border-color: #1f1f1f;
     --scrollbar-thumb: #333333;
