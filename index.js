@@ -6,6 +6,7 @@ import { markdownGuideTemplate } from "./markdownGuide.js";
 const inputText = document.querySelector('#input');
 const outputText = document.querySelector('#preview-content');
 const markdown = document.querySelector('#markdown');
+const editorArea = document.querySelector('#editor-area');
 const previewPane = document.querySelector('#preview-pane');
 const syncCheckbox = document.querySelector('#sync-scroll');
 const mirrorHighlight = document.querySelector('#text-highlight');
@@ -203,7 +204,7 @@ function parseMarkdown(text) {
 
 function syncScroll(from, to, fromFlag, toFlag) {
     if (!syncCheckbox.checked) return;
-    if (fromFlag.value) return;
+    if (toFlag.value) return;
 
     fromFlag.value = true;
 
@@ -216,7 +217,9 @@ function syncScroll(from, to, fromFlag, toFlag) {
 
     to.scrollTop = ratio * toScrollHeight;
 
-    fromFlag.value = false;
+    requestAnimationFrame(() => {
+        fromFlag.value = false;
+    });
 }
 
 function updateViewIcons(activeMode) {
@@ -530,6 +533,16 @@ fontSelect.addEventListener('change', (e) => {
     localStorage.setItem('previewFont', value);
 });
 
+// Sync scroll preference
+const savedSyncScroll = localStorage.getItem('syncScroll');
+if (savedSyncScroll !== null) {
+    syncCheckbox.checked = savedSyncScroll === 'true';
+}
+
+syncCheckbox.addEventListener('change', () => {
+    localStorage.setItem('syncScroll', syncCheckbox.checked);
+});
+
 
 inputText.addEventListener('input', () => {
     updateLineNumbers();
@@ -539,9 +552,10 @@ inputText.addEventListener('input', () => {
     updateClearButtonState();
 });
 
-markdown.addEventListener('scroll', () => {
+
+editorArea.addEventListener('scroll', () => {
     syncScroll(
-        markdown,
+        editorArea,
         previewPane,
         isSyncingFromMarkdown,
         isSyncingFromPreview
@@ -551,7 +565,7 @@ markdown.addEventListener('scroll', () => {
 previewPane.addEventListener('scroll', () => {
     syncScroll(
         previewPane,
-        markdown,
+        editorArea,
         isSyncingFromPreview,
         isSyncingFromMarkdown
     );
