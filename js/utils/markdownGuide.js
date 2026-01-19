@@ -1,212 +1,243 @@
 'use strict'
-export const markdownGuideTemplate = `# Det här är h1
-## Det här är h2
-### Det här är h3
-#### Det här är h4
-##### Det här är h5
-###### Det här är h6
 
-## Textuttryck
-Det här är normal text
+// =============================================================================
+// MARKDOWN GUIDE TEMPLATE (EN)
+// =============================================================================
+// This template is loaded when the user clicks "RESET".
+// It demonstrates both Markdown syntax support and the editor's UI features.
+// =============================================================================
 
-*Den här texten är kursiv*  
-_men den här är också kursiv_
+export const markdownGuideTemplate = `# Markdown Editor Guide
 
-**Den här texten är fetstilt**  
-__Den här är också fetstilt__
+Welcome! This document is intentionally long so you can test:
+- **Scroll sync** (Editor ↔ Preview)
+- **Collapsible sections** (click headings or the chevron)
+- **Collapse/Expand all** (top-right button)
+- **Table of Contents (ToC)** (top-right menu button)
+- **Word/Character counter** and estimated read time
 
-_Och man kan blanda kursivt och **fetstilt** kursiv_
+---
+
+## UI Features (not Markdown syntax)
+
+### View modes
+Use the icons in the header to switch between:
+- Markdown-only
+- Split view
+- Preview-only
+
+### Themes & fonts
+Open **Settings** (top-right) to change:
+- Theme (Analog Switch, Nordic, Retro Terminal, Hazy Orange, Maroon, Fintech)
+- Preview font
+
+### Local storage
+Your text is **saved automatically**. Refresh the page and your document should still be here.
+
+### Clipboard / Download
+Try the toolbar buttons:
+- **COPY** copies raw markdown
+- **DOWNLOAD** saves it as \`document.md\`
+
+---
+
+## Headings
+# This is H1
+## This is H2
+### This is H3
+#### This is H4
+##### This is H5
+###### This is H6
+
+> Tip: Use the ToC button to jump between headings.
+
+---
+
+## Text formatting
+Normal text.
+
+*Italic with asterisks*  
+_Italic with underscores_
+
+**Bold with asterisks**  
+__Bold with underscores__
+
+You can mix styles: _italic and **bold** in the same sentence_.
+
+Inline code: \`const x = 42;\`
+
+---
+
+## Links
+Here is a link: [Markdown Guide](https://www.markdownguide.org/)
+
+---
+
+## Images
+![A sad duck.](/jsAnka.png "A sad duck")
+
+---
+
+## Blockquotes (with nesting)
+> In theory, I'm an adult.
+> In practice, I'm like JavaScript.
+>> ...I don't always crash. Sometimes I fail silently.
+
+---
 
 ## Lists
-### O-ordnad lista
-* Första ankan
-* Andra ankan
-* Tredje ankan
-    * Tredje ankans första barn
-    * Tredje ankans andra barn
 
-### Ordnad lista
-1. Första ankan
-2. Andra ankan
-3. Tredje ankan
-    1. Tredje ankans första barn
-    2. Tredje ankans andra barn
+### Unordered list (with nesting)
+- First item
+- Second item
+- Third item
+  - Child item A
+  - Child item B
 
-### Checklista
-- [x] Automatisk sparning till localStorage
-- [ ] Kaffepaus
-- [x] Länkar och bilder
-- [x] Punktlistor med undernivåer
-- [x] Nummerlistor med undernivåer
-- [x] Tabeller
-- [x] Radbrytning
-- [x] Citat med flera rader
-- [x] Enkla och flerradskodblock
-- [x] Fotnoter
-- [x] Checklista
-- [x] JavaScript, CSS, HTML och C# syntax highlighting
+### Ordered list (with nesting)
+1. First item
+2. Second item
+3. Third item
+   1. Child item 3.1
+   2. Child item 3.2
 
-## Bilder
-![Det här är en anktext.](/jsAnka.png "Det här är en ledsen anka.")
+### Task list / checklist
+- [x] Auto-save to localStorage
+- [x] Live preview
+- [x] Nested lists
+- [x] Tables
+- [x] Footnotes
+- [x] ToC
+- [x] Collapsible sections
+- [x] Multi-language code highlighting (JS, CSS, HTML, C#)
+- [ ] Take a coffee break
 
-## Länkar
-Har du ett [favoritlag](https://sv.wikipedia.org/wiki/Anaheim_Ducks) i hockey? 
+---
 
-## Blockcitat
->I teorin är jag en vuxen människa.  
->I praktiken är jag som JavaScript.
->>... jag vet inte vad som är fel och istället för att krascha och be om hjälp så misslyckas jag under tystnad!
+## Tables
 
-## Tabeller
+| Implemented | Notes |
+|---|---|
+| Live preview | Updates on every keystroke |
+| Sync scroll | Optional toggle in Settings |
+| ToC | Built from headings |
+| Collapsible sections | Click headings to fold content |
 
-| Jag hann med:  | Jag hann inte med: |
-|-|:-:|
-| Automatisk localStorage-sparning | Att vila |
-| Checklistor och fotnoter | Att inte skriva kod |
-| JavaScript syntax highlighting | Att sluta förbättra |
+---
 
-## Fotnoter
+## Footnotes
+Markdown is great for documentation[^md].
+Footnotes are collected at the bottom automatically[^fn].
 
-Markdown är ett fantastiskt format[^1] som gör det enkelt att skriva dokumentation[^2]. 
-Fotnoterna samlas automatiskt längst ner i dokumentet[^3]!
+[^md]: Created by John Gruber in 2004.
+[^fn]: Footnote definitions can be placed anywhere in the document.
 
-[^1]: Det skapades av John Gruber 2004.
-[^2]: Speciellt för README-filer på GitHub.
+---
 
-## Kodblock Syntax Highlighting
+## Fenced code blocks (Syntax Highlighting)
+
 ### JavaScript
 
 \`\`\`js
-// En enkel funktion med syntax highlighting
-const greet = async (name) => {
-    if (name === null || name === undefined) {
-        return "Hello, stranger!";
-    }
-    
-    const message = \`Hello, ${name}!\`;
-    console.log(message);
-    return message;
-};
+// A small demo with keywords, strings, numbers and regex
+export function greet(name) {
+  if (name === null || name === undefined) {
+    return "Hello, stranger!";
+  }
 
-/* Multi-line comment
-   with several lines */
-function fibonacci(n) {
-    let a = 0, b = 1;
-    for (let i = 0; i < n; i++) {
-        [a, b] = [b, a + b];
-    }
-    return a;
+  const message = \`Hello, \${name}!\`;
+  console.log(message);
+  return message;
 }
 
-// Regex example
 const pattern = /[a-z]+\\d*/gi;
 const numbers = [42, 3.14, 0xFF, 1e10];
-
-import { Parser } from './AST.js';
-export default greet;
 \`\`\`
 
 ### CSS
 
 \`\`\`css
-/* CSS example with highlighting */
+/* Simple CSS */
 .container {
-    display: flex;
-    background-color: #1a1a1a;
-    padding: 20px;
+  display: flex;
+  padding: 16px;
+  border: 1px solid #ccc;
 }
 
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
+  .container {
+    flex-direction: column;
+  }
 }
 \`\`\`
 
 ### HTML
 
 \`\`\`html
-<!DOCTYPE html>
-<html lang="sv">
-<head>
-    <meta charset="UTF-8">
-    <title>Min sida</title>
-</head>
-<body>
-    <!-- En kommentar -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Demo</title>
+  </head>
+  <body>
+    <!-- Comment -->
     <div class="container" id="main">
-        <p>Hej världen!</p>
+      <p>Hello world!</p>
     </div>
-</body>
+  </body>
 </html>
 \`\`\`
 
 ### C#
 
 \`\`\`csharp
-// C# example with syntax highlighting
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MyApp
+namespace Demo
 {
-    /// <summary>
-    /// A simple class demonstrating C# features
-    /// </summary>
-    [Serializable]
     public class Person
     {
-        public string Name { get; set; }
-        public int Age { get; private set; }
-        
-        // Constructor
+        public string Name { get; }
+        public int Age { get; }
+
         public Person(string name, int age)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Age = age;
         }
-        
-        // Method with LINQ
-        public static async Task<List<Person>> GetAdultsAsync(IEnumerable<Person> people)
+
+        public override string ToString() => $"{Name} ({Age})";
+    }
+
+    public static class Program
+    {
+        public static async Task Main()
         {
+            var people = new List<Person>
+            {
+                new("Alex", 17),
+                new("Sam", 25),
+                new("Taylor", 32)
+            };
+
             var adults = people
                 .Where(p => p.Age >= 18)
                 .OrderBy(p => p.Name)
                 .ToList();
-            
+
             await Task.Delay(100);
-            return adults;
-        }
-        
-        // Override ToString
-        public override string ToString() => $"{Name} ({Age})";
-    }
-    
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var person = new Person("Anna", 25);
-            Console.WriteLine($"Hello, {person.Name}!");
-            
-            // Numbers and types
-            int count = 42;
-            double pi = 3.14159;
-            decimal price = 99.99m;
-            var hex = 0xFF;
-            
-            /* Multi-line comment
-               demonstrating C# */
-            string interpolated = $"Count: {count}";
-            string verbatim = @"C:\\Users\\Name";
+            Console.WriteLine(string.Join(", ", adults));
         }
     }
 }
 \`\`\`
 
-## Inlinead kod
+---
 
-Den här webbsidan har nu stöd för \`syntax highlighting\` i kodblock!
-
-[^3]: Observera att fotnotsdefinitionerna kan skrivas var som helst i dokumentet, men de renderas alltid längst ner.`;
+## End
+If you can read this, you're at the bottom.
+Try scroll syncing from bottom to top.`;
