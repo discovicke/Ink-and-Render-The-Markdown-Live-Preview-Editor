@@ -33,48 +33,153 @@ let userResized = false;
 document.body.classList.add(`view-${defaultView}`);
 
 
-function escapeHtml(text) {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 function highlightLine(line) {
-    let html = escapeHtml(line);
+    const div = document.createElement('div');
+    div.className = 'mirror-line';
 
-    if (/^```/.test(line)) {
-        html = `<span class="mirrorline-code">${html}</span>`;
-    } else if (/^#{1,6}\s/.test(line)) {
-        html = `<span class="mirrorline-heading">${html}</span>`;
-    } else if (/^\s*[-*+]\s+\[[ xX]\]\s+/.test(line)) {
-        html = `<span class="mirrorline-checklist">${html}</span>`;
-    } else if (/^\s*([-*+]|\d+\.)\s+/.test(line)) {
-        html = `<span class="mirrorline-list">${html}</span>`;
-    } else if (/^>\s*/.test(line)) {
-        html = `<span class="mirrorline-quote">${html}</span>`;
-    } else if (/^\[\^[^\]]+\]:/.test(line)) {
-        html = `<span class="mirrorline-footnote">${html}</span>`;
+    // Tom rad
+    if (!line) {
+        div.innerHTML = '&nbsp;';
+        return div;
     }
 
-    html = html.replace(
-        /\[([^\]]+)\]\(([^)]+)\)/g,
-        (_m, text, url) =>
-            `<span class="mirrorline-link">[${escapeHtml(text)}](${escapeHtml(url)})</span>`
-    );
+    // Skapa en wrapper span med rätt klass baserat på radtyp
+    let wrapperClass = '';
 
-    html = html
-        .replace(/\*\*([^*]+)\*\*/g, '<span class="mirrorline-bold">**$1**</span>')
-        .replace(/__([^_]+)__/g, '<span class="mirrorline-bold">__$1__</span>');
+    if (/^```/.test(line)) {
+        wrapperClass = 'mirrorline-code';
+    } else if (/^#{1,6}\s/.test(line)) {
+        wrapperClass = 'mirrorline-heading';
+    } else if (/^\s*[-*+]\s+\[[ xX]\]\s+/.test(line)) {
+        wrapperClass = 'mirrorline-checklist';
+    } else if (/^\s*([-*+]|\d+\.)\s+/.test(line)) {
+        wrapperClass = 'mirrorline-list';
+    } else if (/^>\s*/.test(line)) {
+        wrapperClass = 'mirrorline-quote';
+    } else if (/^\[\^[^\]]+\]:/.test(line)) {
+        wrapperClass = 'mirrorline-footnote';
+    }
 
-    html = html
-        .replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, '$1<span class="mirrorline-italic">*$2*</span>')
-        .replace(/(^|[^_])_([^_]+)_(?!_)/g, '$1<span class="mirrorline-italic">_$2_</span>');
+    // Highlight inline elements (länkar, bold, italic)
+    const parts = [];
+    let i = 0;
+    let currentText = '';
 
-    return `<div class="mirror-line">${html || '&nbsp;'}</div>`;
+    while (i < line.length) {
+        // Länkar: [text](url)
+        const linkMatch = line.slice(i).match(/^\[([^\]]+)\]\(([^)]+)\)/);
+        if (linkMatch) {
+            if (currentText) {
+                parts.push({ type: 'text', value: currentText });
+                currentText = '';
+            }
+            parts.push({ type: 'link', value: linkMatch[0] });
+            i += linkMatch[0].length;
+            continue;
+        }
 
+        // Bold: **text** eller __text__
+        const boldMatch = line.slice(i).match(/^(\*\*|__)([^*_]+?)\1/);
+        if (boldMatch) {
+            if (currentText) {
+                parts.push({ type: 'text', value: currentText });
+                currentText = '';
+            }
+            parts.push({ type: 'bold', value: boldMatch[0] });
+            i += boldMatch[0].length;
+            continue;
+        }
+
+        // Italic: *text* (men inte **)
+        if (line[i] === '*' && line[i+1] !== '*') {
+            const italicMatch = line.slice(i).match(/^\*([^*]+)\*/);
+            if (italicMatch) {
+                if (currentText) {
+                    parts.push({ type: 'text', value: currentText });
+                    currentText = '';
+                }
+                parts.push({ type: 'italic', value: italicMatch[0] });
+                i += italicMatch[0].length;
+                continue;
+            }
+        }
+
+        // Italic: _text_ (men inte __)
+        if (line[i] === '_' && line[i+1] !== '_' && (i === 0 || line[i-1] !== '_')) {
+            const italicMatch = line.slice(i).match(/^_([^_]+)_/);
+            if (italicMatch) {
+                if (currentText) {
+                    parts.push({ type: 'text', value: currentText });
+                    currentText = '';
+                }
+                parts.push({ type: 'italic', value: italicMatch[0] });
+                i += italicMatch[0].length;
+                continue;
+            }
+        }
+
+        currentText += line[i];
+        i++;
+    }
+
+    if (currentText) {
+        parts.push({ type: 'text', value: currentText });
+    }
+
+    // Bygg DOM-strukturen
+    if (wrapperClass) {
+        const wrapper = document.createElement('span');
+        wrapper.className = wrapperClass;
+
+        parts.forEach(part => {
+            if (part.type === 'link') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-link';
+                span.textContent = part.value;
+                wrapper.appendChild(span);
+            } else if (part.type === 'bold') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-bold';
+                span.textContent = part.value;
+                wrapper.appendChild(span);
+            } else if (part.type === 'italic') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-italic';
+                span.textContent = part.value;
+                wrapper.appendChild(span);
+            } else {
+                const textNode = document.createTextNode(part.value);
+                wrapper.appendChild(textNode);
+            }
+        });
+
+        div.appendChild(wrapper);
+    } else {
+        // Ingen wrapper, bara inline highlighting
+        parts.forEach(part => {
+            if (part.type === 'link') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-link';
+                span.textContent = part.value;
+                div.appendChild(span);
+            } else if (part.type === 'bold') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-bold';
+                span.textContent = part.value;
+                div.appendChild(span);
+            } else if (part.type === 'italic') {
+                const span = document.createElement('span');
+                span.className = 'mirrorline-italic';
+                span.textContent = part.value;
+                div.appendChild(span);
+            } else {
+                const textNode = document.createTextNode(part.value);
+                div.appendChild(textNode);
+            }
+        });
+    }
+
+    return div;
 }
 
 function parseMarkdown(text) {
@@ -185,7 +290,12 @@ function updateLineNumbers() {
 
     const lineNumbers = document.querySelector('#line-numbers');
 
-    mirrorHighlight.innerHTML = linesArray.map(highlightLine).join('');
+    // Clear and rebuild mirror highlight with DOM elements
+    mirrorHighlight.innerHTML = '';
+    linesArray.forEach(line => {
+        const lineElement = highlightLine(line);
+        mirrorHighlight.appendChild(lineElement);
+    });
 
     const cursorPosition = textarea.selectionStart;
     const textBeforeCursor = textarea.value.substring(0, cursorPosition);
