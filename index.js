@@ -49,10 +49,14 @@ function highlightLine(line) {
         html = `<span class="mirrorline-code">${html}</span>`;
     } else if (/^#{1,6}\s/.test(line)) {
         html = `<span class="mirrorline-heading">${html}</span>`;
+    } else if (/^\s*[-*+]\s+\[[ xX]\]\s+/.test(line)) {
+        html = `<span class="mirrorline-checklist">${html}</span>`;
     } else if (/^\s*([-*+]|\d+\.)\s+/.test(line)) {
         html = `<span class="mirrorline-list">${html}</span>`;
     } else if (/^>\s*/.test(line)) {
         html = `<span class="mirrorline-quote">${html}</span>`;
+    } else if (/^\[\^[^\]]+\]:/.test(line)) {
+        html = `<span class="mirrorline-footnote">${html}</span>`;
     }
 
     html = html.replace(

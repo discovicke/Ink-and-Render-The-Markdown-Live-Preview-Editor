@@ -523,6 +523,15 @@ main {
     color: var(--syntax-quote);
 }
 
+.mirrorline-checklist {
+    color: var(--accent-primary);
+}
+
+.mirrorline-footnote {
+    color: var(--syntax-link);
+    font-style: italic;
+}
+
 .mirrorline-link, .mirrorline-image {
     text-decoration: underline;
     text-decoration-color: var(--syntax-link);
@@ -866,4 +875,156 @@ label {
         width: 16px;
         height: 16px;
     }
+}
+
+/* Syntax Highlighting - VS Code inspired colors */
+.hljs-comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.hljs-keyword {
+    color: #c586c0;
+}
+
+.hljs-string {
+    color: #ce9178;
+}
+
+.hljs-number {
+    color: #b5cea8;
+}
+
+.hljs-literal {
+    color: #569cd6;
+}
+
+.hljs-regexp {
+    color: #d16969;
+}
+
+.hljs-title.function_ {
+    color: #dcdcaa;
+}
+
+.hljs-operator {
+    color: #d4d4d4;
+}
+
+.hljs-punctuation {
+    color: #d4d4d4;
+}
+
+.hljs-attribute {
+    color: #9cdcfe;
+}
+
+.hljs-selector-class {
+    color: #d7ba7d;
+}
+
+.hljs-name {
+    color: #569cd6;
+}
+
+.hljs-attr {
+    color: #9cdcfe;
+}
+
+.hljs-meta {
+    color: #569cd6;
+}
+
+/* Dark theme adjustments for syntax highlighting */
+[data-theme="analog switch"] .hljs-comment {
+    color: #5c7a4a;
+}
+
+[data-theme="analog switch"] .hljs-keyword {
+    color: #8a508f;
+}
+
+[data-theme="analog switch"] .hljs-string {
+    color: #a16b56;
+}
+
+[data-theme="analog switch"] .hljs-number {
+    color: #6b8f47;
+}
+
+[data-theme="analog switch"] .hljs-literal {
+    color: #3a6a99;
+}
+
+[data-theme="analog switch"] .hljs-title.function_ {
+    color: #8a8a1a;
+}
+
+/* Checklist styles */
+.checklist {
+    list-style: none;
+    padding-left: 0;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+    padding: 0.25em 0;
+}
+
+.checklist-item input[type="checkbox"] {
+    margin-top: 0.25em;
+    width: 1em;
+    height: 1em;
+    accent-color: var(--accent-primary);
+}
+
+.checklist-item.checked {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+
+/* Footnote styles */
+.footnote-ref a {
+    color: var(--syntax-link);
+    text-decoration: none;
+    font-size: 0.85em;
+}
+
+.footnote-ref a:hover {
+    text-decoration: underline;
+}
+
+.footnotes-separator {
+    margin: 2em 0 1em;
+    border: none;
+    border-top: 1px solid var(--border-color);
+}
+
+.footnotes-section {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    padding-top: 1em;
+}
+
+.footnote {
+    padding: 0.5em 0;
+    display: flex;
+    gap: 0.5em;
+}
+
+.footnote sup {
+    font-weight: bold;
+    min-width: 1.5em;
+}
+
+.footnote-backref {
+    color: var(--syntax-link);
+    text-decoration: none;
+    margin-left: 0.5em;
+}
+
+.footnote-backref:hover {
+    text-decoration: underline;
 }

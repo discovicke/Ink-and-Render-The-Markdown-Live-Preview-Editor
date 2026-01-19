@@ -50,6 +50,17 @@ export class Tokenizer {
             };
         }
 
+        // Checklista
+        const checklistMatch = line.match(/^(\s*)[-*+]\s+\[([ xX])\]\s+(.+)$/);
+        if (checklistMatch) {
+            return {
+                type: 'CHECKLIST_ITEM',
+                indent: checklistMatch[1].length,
+                checked: checklistMatch[2].toLowerCase() === 'x',
+                content: checklistMatch[3]
+            };
+        }
+
         // Lista (punktlista)
         const listMatch = line.match(/^(\s*)[-*+]\s+(.+)$/);
         if (listMatch) {
@@ -75,6 +86,16 @@ export class Tokenizer {
         // Kodblock
         if (line.trim().startsWith('```')) {
             return this.tokenizeCodeBlock();
+        }
+
+        // Fotnotdefinition
+        const footnoteDefMatch = line.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
+        if (footnoteDefMatch) {
+            return {
+                type: 'FOOTNOTE_DEF',
+                id: footnoteDefMatch[1],
+                content: footnoteDefMatch[2]
+            };
         }
 
         // Citat
@@ -205,12 +226,16 @@ export class Parser {
                 return this.parseHeading();
             case 'LIST_ITEM':
                 return this.parseList();
+            case 'CHECKLIST_ITEM':
+                return this.parseChecklist();
             case 'CODE_BLOCK':
                 return this.parseCodeBlock();
             case 'QUOTE':
                 return this.parseQuote();
             case 'TABLE':
                 return this.parseTable();
+            case 'FOOTNOTE_DEF':
+                return this.parseFootnoteDef();
             case 'TEXT':
                 return this.parseParagraph();
             default:
@@ -300,6 +325,27 @@ export class Parser {
         return rootList;
     }
 
+    parseChecklist() {
+        const items = [];
+
+        while (this.pos < this.tokens.length) {
+            const token = this.tokens[this.pos];
+            if (token.type !== 'CHECKLIST_ITEM') break;
+
+            items.push({
+                type: 'checklist_item',
+                checked: token.checked,
+                children: this.parseInline(token.content)
+            });
+            this.pos++;
+        }
+
+        return {
+            type: 'checklist',
+            children: items
+        };
+    }
+
     parseTable() {
         const token = this.tokens[this.pos++];
         return {
@@ -308,6 +354,15 @@ export class Parser {
             rows: token.rows.map(row =>
                 row.map(cell => this.parseInline(cell))
             )
+        };
+    }
+
+    parseFootnoteDef() {
+        const token = this.tokens[this.pos++];
+        return {
+            type: 'footnote_def',
+            id: token.id,
+            children: this.parseInline(token.content)
         };
     }
 
@@ -387,6 +442,14 @@ export class Parser {
                     type: 'image',
                     alt: match[1],
                     url: match[2]
+                })
+            },
+            {
+                type: 'footnote_ref',
+                pattern: /^\[\^([^\]]+)\]/,
+                handler: (match) => ({
+                    type: 'footnote_ref',
+                    id: match[1]
                 })
             },
             {
@@ -494,8 +557,34 @@ export class Parser {
 */
 
 export class Renderer {
+    constructor() {
+        this.footnotes = [];
+    }
+
     render(ast) {
-        return this.renderNode(ast);
+        // Reset footnotes for each render
+        this.footnotes = [];
+
+        // Render main content
+        const mainContent = this.renderNode(ast);
+
+        // Render footnotes section at the end if there are any
+        if (this.footnotes.length > 0) {
+            const footnotesHtml = `
+                <hr class="footnotes-separator">
+                <section class="footnotes-section">
+                    ${this.footnotes.map(fn => `
+                        <div class="footnote" id="fn-${this.escapeHtml(fn.id)}">
+                            <sup>${this.escapeHtml(fn.id)}</sup> ${this.renderChildren(fn.children)} 
+                            <a href="#fnref-${this.escapeHtml(fn.id)}" class="footnote-backref">↩</a>
+                        </div>
+                    `).join('')}
+                </section>
+            `;
+            return mainContent + footnotesHtml;
+        }
+
+        return mainContent;
     }
 
     renderNode(node) {
@@ -522,6 +611,19 @@ export class Renderer {
                 return `<code>${this.escapeHtml(node.value)}</code>`;
 
             case 'code_block': {
+                const lang = node.language ? node.language.toLowerCase() : '';
+                let highlighted;
+
+                if (lang === 'js' || lang === 'javascript') {
+                    highlighted = this.highlightJavaScript(node.content);
+                } else if (lang === 'css') {
+                    highlighted = this.highlightCSS(node.content);
+                } else if (lang === 'html' || lang === 'htm') {
+                    highlighted = this.highlightHTML(node.content);
+                } else {
+                    highlighted = this.escapeHtml(node.content);
+                }
+
                 const escaped = this.escapeHtml(node.content);
                 const langClass = node.language ? ` class="language-${this.escapeHtml(node.language)}"` : '';
                 return `
@@ -529,7 +631,7 @@ export class Renderer {
                         <button class="code-copy-btn" type="button" data-code="${escaped.replace(/"/g, '&quot;')}">
                             COPY
                         </button>
-                        <pre><code${langClass}>${escaped}</code></pre>
+                        <pre><code${langClass}>${highlighted}</code></pre>
                     </div>`;
                 }
 
@@ -551,6 +653,23 @@ export class Renderer {
 
             case 'blockquote':
                 return `<blockquote>${this.renderChildren(node.children)}</blockquote>`;
+
+            case 'checklist':
+                return `<ul class="checklist">${this.renderChildren(node.children)}</ul>`;
+
+            case 'checklist_item': {
+                const checked = node.checked ? ' checked' : '';
+                const checkedClass = node.checked ? ' checked' : '';
+                return `<li class="checklist-item${checkedClass}"><input type="checkbox"${checked} disabled>${this.renderChildren(node.children)}</li>`;
+            }
+
+            case 'footnote_ref':
+                return `<sup class="footnote-ref"><a href="#fn-${this.escapeHtml(node.id)}" id="fnref-${this.escapeHtml(node.id)}">[${this.escapeHtml(node.id)}]</a></sup>`;
+
+            case 'footnote_def':
+                // Store footnote definition for rendering at the end
+                this.footnotes.push(node);
+                return '';
 
             case 'table': {
                 const headerHtml = node.header
@@ -584,5 +703,409 @@ export class Renderer {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // JavaScript syntax highlighting
+    highlightJavaScript(code) {
+        const tokens = [];
+        let i = 0;
+
+        const keywords = ['if', 'else', 'switch', 'case', 'default', 'for', 'while', 'do', 'break', 'continue', 'return', 'throw', 'try', 'catch', 'finally', 'new', 'delete', 'typeof', 'instanceof', 'in', 'of', 'class', 'extends', 'super', 'this', 'static', 'get', 'set', 'async', 'await', 'yield'];
+        const importKeywords = ['import', 'export', 'from', 'as', 'default'];
+        const declarationKeywords = ['function', 'let', 'var', 'const'];
+        const valueKeywords = ['null', 'undefined', 'true', 'false', 'NaN', 'Infinity'];
+        const operators = ['=>', '===', '!==', '==', '!=', '<=', '>=', '&&', '||', '??', '?.', '...', '++', '--', '+=', '-=', '*=', '/=', '%=', '**', '+', '-', '*', '/', '%', '<', '>', '!', '=', '&', '|', '^', '~', '?', ':', ';', ',', '.'];
+
+        while (i < code.length) {
+            // Multi-line comments
+            if (code.slice(i, i + 2) === '/*') {
+                let end = code.indexOf('*/', i + 2);
+                if (end === -1) end = code.length;
+                else end += 2;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Single-line comments
+            if (code.slice(i, i + 2) === '//') {
+                let end = code.indexOf('\n', i);
+                if (end === -1) end = code.length;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Regex literals (simple detection)
+            if (code[i] === '/' && i > 0) {
+                const prevNonSpace = code.slice(0, i).trimEnd();
+                const lastChar = prevNonSpace[prevNonSpace.length - 1];
+                if (['=', '(', ',', '[', '!', '&', '|', ':', ';', '{', '}', '\n'].includes(lastChar) || prevNonSpace.endsWith('return')) {
+                    let j = i + 1;
+                    let escaped = false;
+                    let inClass = false;
+                    while (j < code.length) {
+                        if (escaped) {
+                            escaped = false;
+                        } else if (code[j] === '\\') {
+                            escaped = true;
+                        } else if (code[j] === '[') {
+                            inClass = true;
+                        } else if (code[j] === ']') {
+                            inClass = false;
+                        } else if (code[j] === '/' && !inClass) {
+                            j++;
+                            while (j < code.length && /[gimsuy]/.test(code[j])) j++;
+                            tokens.push({ type: 'regex', value: code.slice(i, j) });
+                            i = j;
+                            break;
+                        } else if (code[j] === '\n') {
+                            break;
+                        }
+                        j++;
+                    }
+                    if (i === j) continue;
+                    continue;
+                }
+            }
+
+            // Strings
+            if (code[i] === '"' || code[i] === "'" || code[i] === '`') {
+                const quote = code[i];
+                let j = i + 1;
+                let escaped = false;
+                while (j < code.length) {
+                    if (escaped) {
+                        escaped = false;
+                    } else if (code[j] === '\\') {
+                        escaped = true;
+                    } else if (code[j] === quote) {
+                        j++;
+                        break;
+                    } else if (quote !== '`' && code[j] === '\n') {
+                        break;
+                    }
+                    j++;
+                }
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Numbers
+            if (/\d/.test(code[i]) || (code[i] === '.' && /\d/.test(code[i + 1]))) {
+                let j = i;
+                if (code.slice(i, i + 2).toLowerCase() === '0x') {
+                    j += 2;
+                    while (j < code.length && /[0-9a-fA-F]/.test(code[j])) j++;
+                } else if (code.slice(i, i + 2).toLowerCase() === '0b') {
+                    j += 2;
+                    while (j < code.length && /[01]/.test(code[j])) j++;
+                } else {
+                    while (j < code.length && /[\d.]/.test(code[j])) j++;
+                    if (code[j] === 'e' || code[j] === 'E') {
+                        j++;
+                        if (code[j] === '+' || code[j] === '-') j++;
+                        while (j < code.length && /\d/.test(code[j])) j++;
+                    }
+                }
+                tokens.push({ type: 'number', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Identifiers and keywords
+            if (/[a-zA-Z_$]/.test(code[i])) {
+                let j = i;
+                while (j < code.length && /[a-zA-Z0-9_$]/.test(code[j])) j++;
+                const word = code.slice(i, j);
+
+                // Check what follows for function detection
+                let k = j;
+                while (k < code.length && /\s/.test(code[k])) k++;
+
+                if (declarationKeywords.includes(word)) {
+                    tokens.push({ type: 'declaration', value: word });
+                } else if (word === 'function') {
+                    tokens.push({ type: 'declaration', value: word });
+                } else if (importKeywords.includes(word)) {
+                    tokens.push({ type: 'import', value: word });
+                } else if (keywords.includes(word)) {
+                    tokens.push({ type: 'keyword', value: word });
+                } else if (valueKeywords.includes(word)) {
+                    tokens.push({ type: 'value', value: word });
+                } else if (code[k] === '(') {
+                    tokens.push({ type: 'function', value: word });
+                } else {
+                    tokens.push({ type: 'identifier', value: word });
+                }
+                i = j;
+                continue;
+            }
+
+            // Brackets
+            if ('()[]{}'.includes(code[i])) {
+                tokens.push({ type: 'bracket', value: code[i] });
+                i++;
+                continue;
+            }
+
+            // Operators
+            let matchedOp = null;
+            for (const op of operators) {
+                if (code.slice(i, i + op.length) === op) {
+                    matchedOp = op;
+                    break;
+                }
+            }
+            if (matchedOp) {
+                tokens.push({ type: 'operator', value: matchedOp });
+                i += matchedOp.length;
+                continue;
+            }
+
+            // Whitespace and other
+            tokens.push({ type: 'text', value: code[i] });
+            i++;
+        }
+
+        return tokens.map(t => {
+            const escaped = this.escapeHtml(t.value);
+            switch (t.type) {
+                case 'comment': return `<span class="hljs-comment">${escaped}</span>`;
+                case 'keyword': return `<span class="hljs-keyword">${escaped}</span>`;
+                case 'import': return `<span class="hljs-keyword">${escaped}</span>`;
+                case 'declaration': return `<span class="hljs-keyword">${escaped}</span>`;
+                case 'value': return `<span class="hljs-literal">${escaped}</span>`;
+                case 'string': return `<span class="hljs-string">${escaped}</span>`;
+                case 'number': return `<span class="hljs-number">${escaped}</span>`;
+                case 'regex': return `<span class="hljs-regexp">${escaped}</span>`;
+                case 'function': return `<span class="hljs-title function_">${escaped}</span>`;
+                case 'operator': return `<span class="hljs-operator">${escaped}</span>`;
+                case 'bracket': return `<span class="hljs-punctuation">${escaped}</span>`;
+                default: return escaped;
+            }
+        }).join('');
+    }
+
+    // CSS syntax highlighting
+    highlightCSS(code) {
+        const tokens = [];
+        let i = 0;
+
+        while (i < code.length) {
+            // Comments
+            if (code.slice(i, i + 2) === '/*') {
+                let end = code.indexOf('*/', i + 2);
+                if (end === -1) end = code.length;
+                else end += 2;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Strings
+            if (code[i] === '"' || code[i] === "'") {
+                const quote = code[i];
+                let j = i + 1;
+                while (j < code.length && code[j] !== quote && code[j] !== '\n') {
+                    if (code[j] === '\\') j++;
+                    j++;
+                }
+                if (code[j] === quote) j++;
+                tokens.push({ type: 'string', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Numbers with units
+            if (/\d/.test(code[i]) || (code[i] === '.' && /\d/.test(code[i + 1]))) {
+                let j = i;
+                while (j < code.length && /[\d.]/.test(code[j])) j++;
+                while (j < code.length && /[a-zA-Z%]/.test(code[j])) j++;
+                tokens.push({ type: 'number', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // @ rules
+            if (code[i] === '@') {
+                let j = i + 1;
+                while (j < code.length && /[a-zA-Z-]/.test(code[j])) j++;
+                tokens.push({ type: 'atrule', value: code.slice(i, j) });
+                i = j;
+                continue;
+            }
+
+            // Selectors, properties, values (simplified)
+            if (/[a-zA-Z_#.-]/.test(code[i])) {
+                let j = i;
+                while (j < code.length && /[a-zA-Z0-9_#.-]/.test(code[j])) j++;
+                const word = code.slice(i, j);
+
+                // Look ahead for colon (property) or brace (selector)
+                let k = j;
+                while (k < code.length && /\s/.test(code[k])) k++;
+
+                if (code[k] === ':' && code[k + 1] !== ':') {
+                    tokens.push({ type: 'property', value: word });
+                } else if (word.startsWith('#') || word.startsWith('.')) {
+                    tokens.push({ type: 'selector', value: word });
+                } else {
+                    tokens.push({ type: 'value', value: word });
+                }
+                i = j;
+                continue;
+            }
+
+            // Punctuation
+            if ('{}:;,()'.includes(code[i])) {
+                tokens.push({ type: 'punctuation', value: code[i] });
+                i++;
+                continue;
+            }
+
+            tokens.push({ type: 'text', value: code[i] });
+            i++;
+        }
+
+        return tokens.map(t => {
+            const escaped = this.escapeHtml(t.value);
+            switch (t.type) {
+                case 'comment': return `<span class="hljs-comment">${escaped}</span>`;
+                case 'string': return `<span class="hljs-string">${escaped}</span>`;
+                case 'number': return `<span class="hljs-number">${escaped}</span>`;
+                case 'atrule': return `<span class="hljs-keyword">${escaped}</span>`;
+                case 'property': return `<span class="hljs-attribute">${escaped}</span>`;
+                case 'selector': return `<span class="hljs-selector-class">${escaped}</span>`;
+                case 'value': return `<span class="hljs-literal">${escaped}</span>`;
+                case 'punctuation': return `<span class="hljs-punctuation">${escaped}</span>`;
+                default: return escaped;
+            }
+        }).join('');
+    }
+
+    // HTML syntax highlighting
+    highlightHTML(code) {
+        const tokens = [];
+        let i = 0;
+
+        while (i < code.length) {
+            // Comments
+            if (code.slice(i, i + 4) === '<!--') {
+                let end = code.indexOf('-->', i + 4);
+                if (end === -1) end = code.length;
+                else end += 3;
+                tokens.push({ type: 'comment', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // DOCTYPE
+            if (code.slice(i, i + 9).toLowerCase() === '<!doctype') {
+                let end = code.indexOf('>', i);
+                if (end === -1) end = code.length;
+                else end += 1;
+                tokens.push({ type: 'doctype', value: code.slice(i, end) });
+                i = end;
+                continue;
+            }
+
+            // Tags
+            if (code[i] === '<') {
+                let j = i + 1;
+                let isClosing = code[j] === '/';
+                if (isClosing) j++;
+
+                // Tag name
+                let tagStart = j;
+                while (j < code.length && /[a-zA-Z0-9-]/.test(code[j])) j++;
+                const tagName = code.slice(tagStart, j);
+
+                if (tagName) {
+                    tokens.push({ type: 'punctuation', value: code.slice(i, tagStart) });
+                    tokens.push({ type: 'tag', value: tagName });
+                    i = j;
+
+                    // Parse attributes until >
+                    while (i < code.length && code[i] !== '>') {
+                        // Whitespace
+                        if (/\s/.test(code[i])) {
+                            let ws = '';
+                            while (i < code.length && /\s/.test(code[i])) {
+                                ws += code[i];
+                                i++;
+                            }
+                            tokens.push({ type: 'text', value: ws });
+                            continue;
+                        }
+
+                        // Self-closing
+                        if (code[i] === '/') {
+                            tokens.push({ type: 'punctuation', value: '/' });
+                            i++;
+                            continue;
+                        }
+
+                        // Attribute name
+                        if (/[a-zA-Z_:-]/.test(code[i])) {
+                            let attrStart = i;
+                            while (i < code.length && /[a-zA-Z0-9_:-]/.test(code[i])) i++;
+                            tokens.push({ type: 'attr-name', value: code.slice(attrStart, i) });
+
+                            // = and value
+                            if (code[i] === '=') {
+                                tokens.push({ type: 'punctuation', value: '=' });
+                                i++;
+
+                                // Quoted value
+                                if (code[i] === '"' || code[i] === "'") {
+                                    const quote = code[i];
+                                    let valEnd = i + 1;
+                                    while (valEnd < code.length && code[valEnd] !== quote) valEnd++;
+                                    if (code[valEnd] === quote) valEnd++;
+                                    tokens.push({ type: 'attr-value', value: code.slice(i, valEnd) });
+                                    i = valEnd;
+                                }
+                            }
+                            continue;
+                        }
+
+                        tokens.push({ type: 'text', value: code[i] });
+                        i++;
+                    }
+
+                    if (code[i] === '>') {
+                        tokens.push({ type: 'punctuation', value: '>' });
+                        i++;
+                    }
+                    continue;
+                }
+            }
+
+            // Text content
+            let textEnd = code.indexOf('<', i);
+            if (textEnd === -1) textEnd = code.length;
+            if (textEnd > i) {
+                tokens.push({ type: 'text', value: code.slice(i, textEnd) });
+                i = textEnd;
+            } else {
+                tokens.push({ type: 'text', value: code[i] });
+                i++;
+            }
+        }
+
+        return tokens.map(t => {
+            const escaped = this.escapeHtml(t.value);
+            switch (t.type) {
+                case 'comment': return `<span class="hljs-comment">${escaped}</span>`;
+                case 'doctype': return `<span class="hljs-meta">${escaped}</span>`;
+                case 'tag': return `<span class="hljs-name">${escaped}</span>`;
+                case 'attr-name': return `<span class="hljs-attr">${escaped}</span>`;
+                case 'attr-value': return `<span class="hljs-string">${escaped}</span>`;
+                case 'punctuation': return `<span class="hljs-punctuation">${escaped}</span>`;
+                default: return escaped;
+            }
+        }).join('');
     }
 }
