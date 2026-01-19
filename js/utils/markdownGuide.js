@@ -74,7 +74,7 @@ Here is a link: [Markdown Guide](https://www.markdownguide.org/)
 ---
 
 ## Images
-![A sad duck.](/jsAnka.png "A sad duck")
+![A sad duck.](/assets/jsAnka.png "A sad duck")
 
 ---
 
@@ -126,9 +126,10 @@ Here is a link: [Markdown Guide](https://www.markdownguide.org/)
 ---
 
 ## Footnotes
-Markdown is great for documentation[^md].
+You could create footnotes with numbers [^1], but works as well with text: Markdown is great for documentation[^md].
 Footnotes are collected at the bottom automatically[^fn].
 
+[^1]: A number is a mathematical concept representing quantity, order, or measurement, used for counting, calculating, and labeling, expressed through symbols.
 [^md]: Created by John Gruber in 2004.
 [^fn]: Footnote definitions can be placed anywhere in the document.
 
