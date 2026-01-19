@@ -20,6 +20,22 @@
     --syntax-code: #c9a66d;
     --syntax-quote: #7d858a;
 
+    /* Code block syntax highlighting */
+    --hljs-comment: #5c7a4a;
+    --hljs-keyword: #8a508f;
+    --hljs-string: #a16b56;
+    --hljs-number: #6b8f47;
+    --hljs-literal: #3a6a99;
+    --hljs-regexp: #b84a4a;
+    --hljs-function: #8a8a1a;
+    --hljs-operator: #666666;
+    --hljs-punctuation: #666666;
+    --hljs-attribute: #3a6a99;
+    --hljs-selector: #866f48;
+    --hljs-name: #3a6a99;
+    --hljs-attr: #3a6a99;
+    --hljs-meta: #3a6a99;
+
     --preview-font-family: inherit;
     --view-btn-ease: cubic-bezier(.2,.8,.2,1);
 
@@ -45,6 +61,22 @@
         --syntax-link-visited: #45524f;
         --syntax-code: #d9b882;
         --syntax-quote: #666663;
+
+        /* Code block syntax highlighting - dark theme */
+        --hljs-comment: #6a9955;
+        --hljs-keyword: #c586c0;
+        --hljs-string: #ce9178;
+        --hljs-number: #b5cea8;
+        --hljs-literal: #569cd6;
+        --hljs-regexp: #d16969;
+        --hljs-function: #dcdcaa;
+        --hljs-operator: #d4d4d4;
+        --hljs-punctuation: #d4d4d4;
+        --hljs-attribute: #9cdcfe;
+        --hljs-selector: #d7ba7d;
+        --hljs-name: #569cd6;
+        --hljs-attr: #9cdcfe;
+        --hljs-meta: #569cd6;
     }
 }
 
@@ -76,6 +108,22 @@ html {
     --syntax-link-visited: #5a6e6b;
     --syntax-code: #d9b882;
     --syntax-quote: #666663;
+
+    /* Code block syntax highlighting - dark */
+    --hljs-comment: #6a9955;
+    --hljs-keyword: #c586c0;
+    --hljs-string: #ce9178;
+    --hljs-number: #b5cea8;
+    --hljs-literal: #569cd6;
+    --hljs-regexp: #d16969;
+    --hljs-function: #dcdcaa;
+    --hljs-operator: #d4d4d4;
+    --hljs-punctuation: #d4d4d4;
+    --hljs-attribute: #9cdcfe;
+    --hljs-selector: #d7ba7d;
+    --hljs-name: #569cd6;
+    --hljs-attr: #9cdcfe;
+    --hljs-meta: #569cd6;
 }
 
 [data-theme="analog switch"] {
@@ -97,6 +145,22 @@ html {
     --syntax-link-visited: #45524f;
     --syntax-code: #866f48;
     --syntax-quote: #7d858a;
+
+    /* Code block syntax highlighting - light theme with darker colors */
+    --hljs-comment: #4a7a2a;
+    --hljs-keyword: #7a308a;
+    --hljs-string: #a14a30;
+    --hljs-number: #4a7a2a;
+    --hljs-literal: #2a4a8a;
+    --hljs-regexp: #b82a2a;
+    --hljs-function: #6a6a00;
+    --hljs-operator: #4a4a4a;
+    --hljs-punctuation: #4a4a4a;
+    --hljs-attribute: #2a5a9a;
+    --hljs-selector: #6a5a30;
+    --hljs-name: #2a4a8a;
+    --hljs-attr: #2a5a9a;
+    --hljs-meta: #2a4a8a;
 }
 
 [data-theme="nordic"] {
@@ -116,6 +180,22 @@ html {
     --syntax-link: #8fb588;
     --syntax-code: #d1c0a5;
     --syntax-quote: #6e7a78;
+
+    /* Code block syntax highlighting - nordic dark */
+    --hljs-comment: #7a9f7a;
+    --hljs-keyword: #cd6b6b;
+    --hljs-string: #d1c0a5;
+    --hljs-number: #8fb588;
+    --hljs-literal: #6fa0c0;
+    --hljs-regexp: #cd4b4b;
+    --hljs-function: #e8d090;
+    --hljs-operator: #a8b5b3;
+    --hljs-punctuation: #a8b5b3;
+    --hljs-attribute: #8fb5c5;
+    --hljs-selector: #d1b585;
+    --hljs-name: #6fa0c0;
+    --hljs-attr: #8fb5c5;
+    --hljs-meta: #6fa0c0;
 }
 
 [data-theme="retro terminal"] {
@@ -137,6 +217,22 @@ html {
     --syntax-link-visited: #688c72;
     --syntax-code: #b8a995;
     --syntax-quote: #756f6a;
+
+    /* Code block syntax highlighting - retro terminal */
+    --hljs-comment: #8a9b7a;
+    --hljs-keyword: #d48a6a;
+    --hljs-string: #c9a87b;
+    --hljs-number: #a4dab3;
+    --hljs-literal: #8ab5c8;
+    --hljs-regexp: #c9756b;
+    --hljs-function: #d4a86a;
+    --hljs-operator: #b0a8a0;
+    --hljs-punctuation: #b0a8a0;
+    --hljs-attribute: #9ac5d5;
+    --hljs-selector: #c9b88b;
+    --hljs-name: #8ab5c8;
+    --hljs-attr: #9ac5d5;
+    --hljs-meta: #8ab5c8;
 }
 
 [data-theme="hazy orange"] {
@@ -158,6 +254,22 @@ html {
     --syntax-link-visited: #9e9e9e;
     --syntax-code: #5c8a68;
     --syntax-quote: #999999;
+
+    /* Code block syntax highlighting - light theme with darker colors */
+    --hljs-comment: #4a7a2a;
+    --hljs-keyword: #b84aa0;
+    --hljs-string: #c84a20;
+    --hljs-number: #3a7a2a;
+    --hljs-literal: #2a5aa0;
+    --hljs-regexp: #d82a2a;
+    --hljs-function: #ff6a00;
+    --hljs-operator: #4a4a4a;
+    --hljs-punctuation: #4a4a4a;
+    --hljs-attribute: #2a6ab0;
+    --hljs-selector: #ff8a20;
+    --hljs-name: #2a5aa0;
+    --hljs-attr: #2a6ab0;
+    --hljs-meta: #ff7e47;
 }
 
 [data-theme="maroon"] {
@@ -179,6 +291,22 @@ html {
     --syntax-link-visited: #8f7678;
     --syntax-code: #d6b8ba;
     --syntax-quote: #7a5c5f;
+
+    /* Code block syntax highlighting - maroon dark */
+    --hljs-comment: #a89b8d;
+    --hljs-keyword: #f0a897;
+    --hljs-string: #e3c2a3;
+    --hljs-number: #d6c8ba;
+    --hljs-literal: #c0a8c8;
+    --hljs-regexp: #e09f87;
+    --hljs-function: #ffcec4;
+    --hljs-operator: #c8b8b2;
+    --hljs-punctuation: #c8b8b2;
+    --hljs-attribute: #d0b8d0;
+    --hljs-selector: #e3d2b3;
+    --hljs-name: #c0a8c8;
+    --hljs-attr: #d0b8d0;
+    --hljs-meta: #c0a8c8;
 }
 
 [data-theme="fintech"] {
@@ -200,6 +328,22 @@ html {
     --syntax-link-visited: #5d4a82;
     --syntax-code: #e9ffc4;
     --syntax-quote: #4d4d4d;
+
+    /* Code block syntax highlighting - fintech dark */
+    --hljs-comment: #708070;
+    --hljs-keyword: #d4f02e;
+    --hljs-string: #e9ffc4;
+    --hljs-number: #bfe9c4;
+    --hljs-literal: #bfa2f7;
+    --hljs-regexp: #f7a2d4;
+    --hljs-function: #f0e92e;
+    --hljs-operator: #b8b8b8;
+    --hljs-punctuation: #b8b8b8;
+    --hljs-attribute: #d4a2f7;
+    --hljs-selector: #d4f09e;
+    --hljs-name: #bfa2f7;
+    --hljs-attr: #d4a2f7;
+    --hljs-meta: #bfa2f7;
 }
 
 body {
@@ -894,87 +1038,62 @@ label {
     }
 }
 
-/* Syntax Highlighting - VS Code inspired colors */
+/* Syntax Highlighting - Using CSS variables for theme support */
 .hljs-comment {
-    color: #6a9955;
+    color: var(--hljs-comment);
     font-style: italic;
 }
 
 .hljs-keyword {
-    color: #c586c0;
+    color: var(--hljs-keyword);
 }
 
 .hljs-string {
-    color: #ce9178;
+    color: var(--hljs-string);
 }
 
 .hljs-number {
-    color: #b5cea8;
+    color: var(--hljs-number);
 }
 
 .hljs-literal {
-    color: #569cd6;
+    color: var(--hljs-literal);
 }
 
 .hljs-regexp {
-    color: #d16969;
+    color: var(--hljs-regexp);
 }
 
 .hljs-title.function_ {
-    color: #dcdcaa;
+    color: var(--hljs-function);
 }
 
 .hljs-operator {
-    color: #d4d4d4;
+    color: var(--hljs-operator);
 }
 
 .hljs-punctuation {
-    color: #d4d4d4;
+    color: var(--hljs-punctuation);
 }
 
 .hljs-attribute {
-    color: #9cdcfe;
+    color: var(--hljs-attribute);
 }
 
 .hljs-selector-class {
-    color: #d7ba7d;
+    color: var(--hljs-selector);
 }
 
 .hljs-name {
-    color: #569cd6;
+    color: var(--hljs-name);
 }
 
 .hljs-attr {
-    color: #9cdcfe;
+    color: var(--hljs-attr);
 }
 
 .hljs-meta {
-    color: #569cd6;
-}
-
-/* Dark theme adjustments for syntax highlighting */
-[data-theme="analog switch"] .hljs-comment {
-    color: #5c7a4a;
-}
-
-[data-theme="analog switch"] .hljs-keyword {
-    color: #8a508f;
-}
-
-[data-theme="analog switch"] .hljs-string {
-    color: #a16b56;
-}
-
-[data-theme="analog switch"] .hljs-number {
-    color: #6b8f47;
-}
-
-[data-theme="analog switch"] .hljs-literal {
-    color: #3a6a99;
-}
-
-[data-theme="analog switch"] .hljs-title.function_ {
-    color: #8a8a1a;
+    color: var(--hljs-meta);
 }
 
 /* Checklist styles */
