@@ -370,7 +370,8 @@ body.view-markdown #markdown {
     flex: 1 1 auto;
 }
 body.view-markdown #toc-toggle,
-body.view-markdown #toc-panel {
+body.view-markdown #toc-panel,
+body.view-markdown #collapse-all-toggle {
     display: none;
 }
 
@@ -837,6 +838,37 @@ main {
     pointer-events: none;
 }
 
+/* Collapse All Toggle Button */
+#collapse-all-toggle {
+    position: fixed;
+    top: 135px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-editor);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+#collapse-all-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: var(--accent-primary);
+    color: var(--bg-preview);
+}
+
+#collapse-all-toggle svg {
+    pointer-events: none;
+}
+
 /* Table of Contents Panel */
 #toc-panel {
     position: fixed;
@@ -980,6 +1012,88 @@ main {
     padding-left: 4.5rem;
     font-size: 0.775rem;
     opacity: 0.8;
+}
+
+/* Collapsible Sections */
+.collapsible-section {
+    margin: 0.3rem 0;
+}
+
+.collapsible-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.collapsible-heading:hover {
+    color: var(--accent-primary);
+}
+
+.collapse-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.collapse-toggle:hover {
+    background: var(--bg-editor);
+    color: var(--accent-primary);
+}
+
+.collapse-icon {
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+.collapsible-section.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.heading-content {
+    flex: 1;
+}
+
+.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    max-height: 10000px;
+    opacity: 1;
+}
+
+.collapsible-section.collapsed .collapsible-content {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* Adjust existing heading styles to work with collapsible */
+.collapsible-heading.collapsible-heading {
+    margin: 0.7rem 0 0.4rem 0;
+}
+
+#preview-pane .collapsible-heading h1,
+#preview-pane .collapsible-heading h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#preview-pane h1.collapsible-heading,
+#preview-pane h2.collapsible-heading {
+    border-bottom: 1px solid var(--accent-primary);
 }
 
 #preview-pane h1, h2 {
@@ -1305,6 +1419,18 @@ label {
     }
 
     #toc-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    #collapse-all-toggle {
+        width: 40px;
+        height: 40px;
+        right: 15px;
+        top: 120px;
+    }
+
+    #collapse-all-toggle svg {
         width: 18px;
         height: 18px;
     }
