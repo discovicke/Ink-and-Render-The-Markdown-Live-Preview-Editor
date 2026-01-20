@@ -1,4 +1,6 @@
-# Markdown Editor (Live Preview)
+# INK & RENDER - A Markdown Live Preview Editor
+
+![Ink & Render](screenshots/Ink&Render.png)
 
 A small, framework-free Markdown editor with a real-time preview, built as a modular vanilla JS project.
 
@@ -9,20 +11,43 @@ A small, framework-free Markdown editor with a real-time preview, built as a mod
 - Custom Markdown parser/renderer (AST-based)
 - Node.js (for running the provided test suite)
 
+## Tech Highlights
+
+- **Zero dependencies** in production (fully framework-free)
+- **Custom AST-based Markdown parser** built from scratch
+- **Modular architecture** with ES6 modules
+- **Responsive design** with mobile-friendly UI
+- **localStorage persistence** for settings and content
+
 ## Features
 
-Editor + Preview:
+### Editor + Preview:
 - Live preview (updates on every keystroke)
+- **Syntax highlighting in editor** for markdown elements (headings, lists, links, bold, italic, etc.)
+- **Line numbers** in editor
 - Split view / Markdown-only / Preview-only view modes
 - Optional **sync scroll** between editor and preview
 - Resizable split view (drag handle)
 
-Navigation:
+#### Customization:
+- **7 color themes** including:
+  - Analog Switch (light & dark variants)
+  - Nordic Ambience
+  - Retro Terminal
+  - Hazy Orange
+  - Maroon
+  - Fintech
+- **Font selection** for preview pane (default, monospace, serif, sans-serif)
+- **Persistent settings** (theme, font, and sync scroll preferences saved)
+
+#### Navigation:
 - **Table of Contents (ToC)** built from headings
+  - Smooth scroll navigation
+  - Active section highlighting
 - **Collapsible sections** in preview (per heading)
 - Collapse/expand all sections button
 
-Markdown support (highlights/rendering):
+#### Markdown support (highlights/rendering):
 - Headings (H1–H6)
 - Bold / italic
 - Links
@@ -30,11 +55,12 @@ Markdown support (highlights/rendering):
 - Blockquotes (including nesting)
 - Ordered & unordered lists (including nesting)
 - Task lists (checkboxes)
+- Horizontal rules (`---`, `***`, `___`)
 - Tables
 - Footnotes
 - Inline code + fenced code blocks
 
-Code blocks:
+#### Code blocks:
 - Syntax highlighting for:
   - JavaScript (` ```js `)
   - CSS (` ```css `)
@@ -46,6 +72,45 @@ Quality-of-life:
 - Auto-save to localStorage
 - Live word/character counter + estimated read time
 - Toolbar actions: copy markdown, clear, load guide, download `.md`
+
+## Screenshots
+
+<details>
+<summary>📷 View all screenshots</summary>
+
+### Editor View
+![Editor View](screenshots/Editor-View.png)
+
+### Preview View
+![Preview View](screenshots/Preview.png)
+
+### Table of Contents
+![Table of Contents](screenshots/ToC.png)
+
+### Themes
+
+#### Analog Switch (Light)
+![Analog Switch](screenshots/Analog-Switch.png)
+
+#### Analog Switch (Dark)
+![Analog Switch Dark](screenshots/Analog-Switch(night).png)
+
+#### Nordic Ambience
+![Nordic Ambience](screenshots/Nordic-Ambience.png)
+
+#### Retro Terminal
+![Retro Terminal](screenshots/Retro-Terminal.png)
+
+#### Hazy Orange
+![Hazy Orange](screenshots/Hazy-Orange.png)
+
+#### Maroon
+![Maroon](screenshots/Maroon.png)
+
+#### Fintech
+![Fintech](screenshots/Fintech.png)
+
+</details>
 
 ## Getting started
 
