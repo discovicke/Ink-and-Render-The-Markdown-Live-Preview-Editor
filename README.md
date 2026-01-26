@@ -2,6 +2,8 @@
 
 ![Ink & Render](screenshots/Ink&Render.png)
 
+Test it live: [Link](https://inkandrender.vercel.app)  
+
 A small, framework-free Markdown editor with a real-time preview, built as a modular vanilla JS project.
 
 ## Tech stack
