@@ -1,5 +1,13 @@
 # INK & RENDER - A Markdown Live Preview Editor
 
+![JavaScript](https://img.shields.io/badge/JavaScript-ES%20Modules-F7DF1E?logo=javascript&logoColor=black)
+![Vanilla JS](https://img.shields.io/badge/Framework-None%20(Vanilla%20JS)-informational)
+![Markdown](https://img.shields.io/badge/Markdown-Custom%20Parser-blue)
+![AST](https://img.shields.io/badge/Parser-AST--based-8A2BE2)
+![Node.js](https://img.shields.io/badge/Node.js-Tests%20Only-339933?logo=node.js&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
+![Live Demo](https://img.shields.io/badge/Demo-Vercel-black?logo=vercel)
+
 ![Ink & Render](screenshots/Ink&Render.png)
 
 Test it live: [Link](https://inkandrender.vercel.app)  
