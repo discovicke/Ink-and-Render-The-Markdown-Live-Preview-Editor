@@ -25,6 +25,7 @@ import { updateLineNumbers, resizeTextarea } from './editor/lineNumbers.js';
 import { syncScroll, createScrollFlags } from './editor/syncScroll.js';
 import { setupFormatToolbar } from './editor/formatToolbar.js';
 import { setupAutoPairs } from './editor/autoPairs.js';
+import { setupAutoList } from './editor/autoList.js';
 
 // Preview modules
 import { generateTableOfContents, updateActiveToC, setupToCToggle } from './preview/tableOfContents.js';
@@ -219,6 +220,7 @@ function initializeApp() {
     // Setup format toolbar
     setupFormatToolbar(elements.formatToolbar, elements.inputText, updateAllUI);
 
+    // Setup editor smart features
     setupAutoList(elements.inputText, updateAllUI);
     setupAutoPairs(elements.inputText, updateAllUI);
 
