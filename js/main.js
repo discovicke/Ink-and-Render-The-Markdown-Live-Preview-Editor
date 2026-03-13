@@ -71,6 +71,7 @@ const elements = {
     clearButton: document.querySelector('#clear-markdown-btn'),
     resetButton: document.querySelector('#reset-markdown-btn'),
     downloadButton: document.querySelector('#download-markdown-btn'),
+    formatToolbar: document.querySelector('#format-toolbar'),
 
     // Stats elements
     wordCountEl: document.querySelector('#word-count'),
