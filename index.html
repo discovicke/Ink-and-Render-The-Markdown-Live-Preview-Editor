@@ -96,16 +96,30 @@
 <main>
     <section id="markdown">
         <div id="editor-toolbar">
-            <button id="copy-markdown-btn" type="button" title="Copy markdown">COPY</button>
-            <button id="clear-markdown-btn" type="button" title="Clear markdown">CLEAR</button>
-            <button id="reset-markdown-btn" type="button" title="Load guide">RESET</button>
-            <button id="download-markdown-btn" type="button" title="Download">DOWNLOAD</button>
+            <button id="copy-markdown-btn" type="button" title="Copy markdown to clipboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                COPY
+            </button>
+            <button id="clear-markdown-btn" type="button" title="Clear all content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                CLEAR
+            </button>
+            <button id="reset-markdown-btn" type="button" title="Load markdown syntax guide" aria-label="Load markdown syntax guide">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                GUIDE
+            </button>
+            <button id="download-markdown-btn" type="button" title="Download as .md file">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                DOWNLOAD
+            </button>
             <div id="stats-counter">
                 <span id="word-count" title="Word count">0 words</span>
                 <span class="stats-separator">•</span>
                 <span id="char-count" title="Character count">0 chars</span>
                 <span class="stats-separator">•</span>
                 <span id="read-time" title="Estimated reading time">~0 min read</span>
+            </div>
+        </div>
         <div id="format-toolbar">
             <div class="fmt-group" aria-label="Headings">
                 <button type="button" data-format="h1" title="Heading 1">H1</button>
