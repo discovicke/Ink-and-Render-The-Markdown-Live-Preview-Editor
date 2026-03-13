@@ -263,14 +263,56 @@ function initializeApp() {
         updateActiveToC(elements.outputText, elements.tocContent, elements.previewPane);
     });
 
-    // Tab key handling
+    // Tab / Shift+Tab key handling (indent / outdent)
     elements.inputText.tabIndex = 0;
     elements.inputText.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            document.execCommand('insertText', false, '    ');
+            const textarea = elements.inputText;
+
+            if (e.shiftKey) {
+                // Shift+Tab → outdent selected lines (remove up to 4 leading spaces)
+                const { selectionStart: start, selectionEnd: end, value } = textarea;
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const lineEnd = value.indexOf('\n', end);
+                const blockEnd = lineEnd === -1 ? value.length : lineEnd;
+
+                const block = value.slice(lineStart, blockEnd);
+                const lines = block.split('\n');
+                const newLines = lines.map(l => {
+                    const match = l.match(/^( {1,4}|\t)/);
+                    return match ? l.slice(match[0].length) : l;
+                });
+                const replacement = newLines.join('\n');
+
+                textarea.selectionStart = lineStart;
+                textarea.selectionEnd = blockEnd;
+                document.execCommand('insertText', false, replacement);
+                textarea.selectionStart = lineStart;
+                textarea.selectionEnd = lineStart + replacement.length;
+            } else if (textarea.selectionStart !== textarea.selectionEnd) {
+                // Tab with selection → indent all selected lines
+                const { selectionStart: start, selectionEnd: end, value } = textarea;
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const lineEnd = value.indexOf('\n', end);
+                const blockEnd = lineEnd === -1 ? value.length : lineEnd;
+
+                const block = value.slice(lineStart, blockEnd);
+                const lines = block.split('\n');
+                const replacement = lines.map(l => '    ' + l).join('\n');
+
+                textarea.selectionStart = lineStart;
+                textarea.selectionEnd = blockEnd;
+                document.execCommand('insertText', false, replacement);
+                textarea.selectionStart = lineStart;
+                textarea.selectionEnd = lineStart + replacement.length;
+            } else {
+                // Tab without selection → insert 4 spaces at cursor
+                document.execCommand('insertText', false, '    ');
+            }
+
             updateAllUI();
         }
     });
