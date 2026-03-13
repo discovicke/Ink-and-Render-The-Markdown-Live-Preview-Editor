@@ -23,6 +23,7 @@ import { markdownGuideTemplate } from "./utils/markdownGuide.js";
 // Editor modules
 import { updateLineNumbers, resizeTextarea } from './editor/lineNumbers.js';
 import { syncScroll, createScrollFlags } from './editor/syncScroll.js';
+import { setupAutoPairs } from './editor/autoPairs.js';
 
 // Preview modules
 import { generateTableOfContents, updateActiveToC, setupToCToggle } from './preview/tableOfContents.js';
@@ -213,6 +214,9 @@ function initializeApp() {
         updateAllUI
     );
     setupDownloadButton(elements.downloadButton, elements.inputText);
+
+    setupAutoList(elements.inputText, updateAllUI);
+    setupAutoPairs(elements.inputText, updateAllUI);
 
     // Setup ToC
     setupToCToggle(elements.tocToggle, elements.tocPanel, elements.tocClose);
