@@ -23,6 +23,7 @@ import { markdownGuideTemplate } from "./utils/markdownGuide.js";
 // Editor modules
 import { updateLineNumbers, resizeTextarea } from './editor/lineNumbers.js';
 import { syncScroll, createScrollFlags } from './editor/syncScroll.js';
+import { setupFormatToolbar } from './editor/formatToolbar.js';
 import { setupAutoPairs } from './editor/autoPairs.js';
 
 // Preview modules
@@ -214,6 +215,9 @@ function initializeApp() {
         updateAllUI
     );
     setupDownloadButton(elements.downloadButton, elements.inputText);
+
+    // Setup format toolbar
+    setupFormatToolbar(elements.formatToolbar, elements.inputText, updateAllUI);
 
     setupAutoList(elements.inputText, updateAllUI);
     setupAutoPairs(elements.inputText, updateAllUI);
