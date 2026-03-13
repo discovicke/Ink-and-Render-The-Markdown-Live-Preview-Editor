@@ -10,6 +10,7 @@
 
 import { copyMarkdownToClipboard } from '../utils/clipboard.js';
 import { saveMarkdownText } from '../utils/storage.js';
+import { confirmDialog } from './confirmDialog.js';
 
 /**
  * Sets up the copy button functionality.
@@ -39,12 +40,18 @@ export function setupCopyButton(copyButton, textarea) {
 export function setupClearButton(clearButton, textarea, outputText, mirrorHighlight, onClear) {
     if (!clearButton) return;
 
-    clearButton.addEventListener('click', (event) => {
+    clearButton.addEventListener('click', async (event) => {
         event.preventDefault();
 
         if (!textarea.value.trim()) return;
 
-        const confirmed = window.confirm('Är du säker på att du vill rensa din markdowntext?');
+        const confirmed = await confirmDialog({
+            title: 'Clear all content?',
+            message: 'This will permanently delete everything in the editor. This action cannot be undone.',
+            confirmText: 'Clear',
+            cancelText: 'Keep editing',
+            variant: 'danger',
+        });
         if (!confirmed) return;
 
         textarea.value = '';
@@ -70,8 +77,20 @@ export function setupClearButton(clearButton, textarea, outputText, mirrorHighli
 export function setupResetButton(resetButton, textarea, template, parseMarkdown, outputText, onReset) {
     if (!resetButton) return;
 
-    resetButton.addEventListener('click', (event) => {
+    resetButton.addEventListener('click', async (event) => {
         event.preventDefault();
+
+        // If the editor has content, warn the user before overwriting
+        if (textarea.value.trim() && textarea.value !== template) {
+            const confirmed = await confirmDialog({
+                title: 'Load syntax guide?',
+                message: 'This will replace your current content with the markdown syntax guide. Any unsaved work will be lost.',
+                confirmText: 'Load guide',
+                cancelText: 'Cancel',
+                variant: 'warning',
+            });
+            if (!confirmed) return;
+        }
 
         textarea.value = template;
         outputText.innerHTML = parseMarkdown(textarea.value);
