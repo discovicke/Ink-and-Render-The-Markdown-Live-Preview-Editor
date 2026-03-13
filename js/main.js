@@ -270,17 +270,7 @@ function initializeApp() {
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            const start = elements.inputText.selectionStart;
-            const end = elements.inputText.selectionEnd;
-            const value = elements.inputText.value;
-            const insert = '    ';
-
-            elements.inputText.value = value.slice(0, start) + insert + value.slice(end);
-
-            const newPos = start + insert.length;
-            elements.inputText.selectionStart = newPos;
-            elements.inputText.selectionEnd = newPos;
-
+            document.execCommand('insertText', false, '    ');
             updateAllUI();
         }
     });
