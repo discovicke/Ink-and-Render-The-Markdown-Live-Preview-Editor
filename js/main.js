@@ -16,6 +16,9 @@
 // IMPORTS
 // =============================================================================
 
+// Vercel Web Analytics
+import { inject } from '@vercel/analytics';
+
 // AST Parser and Renderer
 import { Parser, Renderer, Tokenizer } from "./AST.js";
 import { markdownGuideTemplate } from "./utils/markdownGuide.js";
@@ -345,3 +348,6 @@ function initializeApp() {
 
 // Start the application
 initializeApp();
+
+// Initialize Vercel Web Analytics
+inject();
